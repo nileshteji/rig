@@ -1,0 +1,15 @@
+Host github
+    HostName github.com
+    User git
+    IdentityAgent "~/.1password/agent.sock"
+    IdentitiesOnly yes
+    IdentityFile ~/.ssh/personal-ssh
+Host bitbucket
+    HostName bitbucket.org
+    User git
+    IdentityAgent "~/.1password/agent.sock"
+    IdentitiesOnly yes
+    IdentityFile ~/.ssh/work-ssh
+Host *
+    IdentityAgent "~/.1password/agent.sock"
+    IdentitiesOnly no
