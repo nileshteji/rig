@@ -81,5 +81,12 @@ backup_file "$GHOSTTY_TARGET"
 cp "$GHOSTTY_SRC" "$GHOSTTY_TARGET"
 echo "✓ Ghostty config installed to $GHOSTTY_TARGET"
 
+# 1Password agent socket
+echo "Setting up 1Password agent socket..."
+mkdir -p ~/.1password
+rm -f ~/.1password/agent.sock
+ln -s "$HOME/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock" ~/.1password/agent.sock
+echo "✓ 1Password agent.sock symlinked to ~/.1password/agent.sock"
+
 echo ""
 echo "✓ All dotfiles installed successfully!"
