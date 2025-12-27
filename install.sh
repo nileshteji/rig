@@ -43,6 +43,24 @@ else
     echo "✓ Neovim already installed"
 fi
 
+# Install Amp
+if ! command -v amp &> /dev/null; then
+    echo "Installing Amp..."
+    curl -fsSL https://ampcode.com/install.sh | bash
+    echo "✓ Amp installed"
+else
+    echo "✓ Amp already installed"
+fi
+
+# Install Codex
+if ! command -v codex &> /dev/null; then
+    echo "Installing Codex..."
+    brew install --cask codex
+    echo "✓ Codex installed"
+else
+    echo "✓ Codex already installed"
+fi
+
 # Create nvim symlink
 echo "Setting up nvim config..."
 mkdir -p ~/.config
