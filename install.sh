@@ -34,6 +34,15 @@ else
     echo "✓ Oh My Zsh already installed"
 fi
 
+# Install Neovim
+if ! command -v nvim &> /dev/null; then
+    echo "Installing Neovim..."
+    brew install neovim
+    echo "✓ Neovim installed"
+else
+    echo "✓ Neovim already installed"
+fi
+
 # Create nvim symlink
 echo "Setting up nvim config..."
 mkdir -p ~/.config
