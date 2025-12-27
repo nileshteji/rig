@@ -61,6 +61,15 @@ else
     echo "✓ Codex already installed"
 fi
 
+# Install Claude
+if ! command -v claude &> /dev/null; then
+    echo "Installing Claude..."
+    curl -fsSL https://claude.ai/install.sh | bash
+    echo "✓ Claude installed"
+else
+    echo "✓ Claude already installed"
+fi
+
 # Create nvim symlink
 echo "Setting up nvim config..."
 mkdir -p ~/.config
