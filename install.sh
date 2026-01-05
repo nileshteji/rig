@@ -25,15 +25,6 @@ else
     echo "✓ Homebrew already installed"
 fi
 
-# Install Oh My Zsh
-if [[ ! -d "$HOME/.oh-my-zsh" ]]; then
-    echo "Installing Oh My Zsh..."
-    sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
-    echo "✓ Oh My Zsh installed"
-else
-    echo "✓ Oh My Zsh already installed"
-fi
-
 # Install Neovim
 if ! command -v nvim &> /dev/null; then
     echo "Installing Neovim..."
@@ -107,6 +98,21 @@ mkdir -p "$(dirname "$GHOSTTY_TARGET")"
 backup_file "$GHOSTTY_TARGET"
 cp "$GHOSTTY_SRC" "$GHOSTTY_TARGET"
 echo "✓ Ghostty config installed to $GHOSTTY_TARGET"
+
+# iTerm color preset
+echo "Setting up iTerm color preset..."
+ITERM_THEME_SRC="$DOTFILES_DIR/iterm/nilesh.itermcolors"
+
+if [[ "$OSTYPE" == "darwin"* ]]; then
+    ITERM_PRESET_DIR="$HOME/Library/Application Support/iTerm2/Color Presets"
+    ITERM_PRESET_TARGET="$ITERM_PRESET_DIR/$(basename "$ITERM_THEME_SRC")"
+    mkdir -p "$ITERM_PRESET_DIR"
+    backup_file "$ITERM_PRESET_TARGET"
+    cp "$ITERM_THEME_SRC" "$ITERM_PRESET_TARGET"
+    echo "✓ iTerm color preset installed to $ITERM_PRESET_TARGET"
+else
+    echo "Skipping iTerm color preset (macOS only)"
+fi
 
 # 1Password agent socket
 echo "Setting up 1Password agent socket..."

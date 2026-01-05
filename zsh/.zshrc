@@ -1,11 +1,3 @@
-
-export ZSH="$HOME/.oh-my-zsh"
-
-ZSH_THEME="robbyrussell"
-
-plugins=(git)
-
-source $ZSH/oh-my-zsh.sh
 alias lspci="system_profiler SPUSBDataType"
 alias staging="ssh 10.0.3.214 -l ubuntu"
 alias jarvis="ssh 10.0.3.63 -l ubuntu"+
@@ -23,8 +15,6 @@ alias prod="ssh 20.0.2.196 -l ubuntu"
 alias white="ssh 10.0.3.143 -l ubuntu"
 alias stagingd="PGPASSWORD="RvSr00axOg"  psql -h 10.0.3.144 -p 5432 -U postgres"
 alias database="PGPASSWORD='(leap_staging)' psql -h 10.0.3.163 -p 5433 -U postgres"
-source $ZSH/oh-my-zsh.sh
-# ~/.zshrc
 export LANG=en_US.UTF-8
 export LANG=en_US.UTF-8
 export LC_ALL=en_US.UTF-8
