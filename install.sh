@@ -14,6 +14,14 @@ backup_file() {
     fi
 }
 
+backup_dir() {
+    if [[ -d "$1" && ! -L "$1" ]]; then
+        local backup_dir="$1.backup.$(date +%s)"
+        mv "$1" "$backup_dir"
+        echo "  Backed up existing directory to $backup_dir"
+    fi
+}
+
 echo "Setting up dotfiles from: $DOTFILES_DIR"
 
 # Install Homebrew
@@ -64,6 +72,7 @@ fi
 # Create nvim symlink
 echo "Setting up nvim config..."
 mkdir -p ~/.config
+backup_dir "$HOME/.config/nvim"
 rm -f ~/.config/nvim
 ln -s "$DOTFILES_DIR/nvim" ~/.config/nvim
 echo "✓ nvim symlinked to ~/.config/nvim"
@@ -88,7 +97,12 @@ echo "Setting up ghostty config..."
 GHOSTTY_SRC="$DOTFILES_DIR/ghostty/config"
 
 if [[ "$OSTYPE" == "darwin"* ]]; then
-    GHOSTTY_TARGET="$HOME/Library/Application Support/com.mitchellh.ghostty/config"
+    GHOSTTY_CONFIG_DIR="$HOME/Library/Application Support/com.mitchellh.ghostty"
+    if [[ -f "$GHOSTTY_CONFIG_DIR/config.ghostty" || ! -f "$GHOSTTY_CONFIG_DIR/config" ]]; then
+        GHOSTTY_TARGET="$GHOSTTY_CONFIG_DIR/config.ghostty"
+    else
+        GHOSTTY_TARGET="$GHOSTTY_CONFIG_DIR/config"
+    fi
 else
     GHOSTTY_CONFIG_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/ghostty"
     GHOSTTY_TARGET="$GHOSTTY_CONFIG_DIR/config"

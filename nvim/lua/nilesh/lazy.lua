@@ -36,10 +36,6 @@ require("lazy").setup({
     },
     -- Colorschemes
     {
-        'rose-pine/neovim',
-        name = 'rose-pine',
-    },
-    {
         'ellisonleao/gruvbox.nvim',
         priority = 1000,
         config = function()
@@ -69,15 +65,6 @@ require("lazy").setup({
             vim.cmd.colorscheme("gruvbox")
         end
     },
-    { 'folke/tokyonight.nvim' },
-
-    -- Trouble
-    {
-        "folke/trouble.nvim",
-        config = function()
-            require("trouble").setup { icons = false }
-        end
-    },
 
     -- Treesitter
     {
@@ -85,7 +72,7 @@ require("lazy").setup({
         build = ':TSUpdate',
         config = function()
             require('nvim-treesitter').setup {
-                ensure_installed = { "kotlin", "swift", "java", "vimdoc", "javascript", "typescript" },
+                ensure_installed = { "kotlin", "swift", "javascript", "typescript" },
                 sync_install = false,
                 auto_install = true,
                 highlight = {
@@ -112,7 +99,6 @@ require("lazy").setup({
         end
     },
 
-    { 'theprimeagen/refactoring.nvim' },
 
     -- Undotree
     {
@@ -185,7 +171,6 @@ require("lazy").setup({
             require('mason-lspconfig').setup({
                 ensure_installed = {
                     'kotlin_language_server',
-                    'rust_analyzer',
                     'lua_ls',
                 },
             })
@@ -268,7 +253,6 @@ require("lazy").setup({
             })
 
             vim.lsp.enable('kotlin_language_server')
-            vim.lsp.enable('rust_analyzer')
             vim.lsp.enable('lua_ls')
 
             vim.diagnostic.config({
@@ -294,10 +278,7 @@ require("lazy").setup({
         end
     },
 
-    { "folke/zen-mode.nvim" },
     { "github/copilot.vim" },
-    { "eandrju/cellular-automaton.nvim" },
-    { "laytan/cloak.nvim" },
 
     -- Cursorline
     {
