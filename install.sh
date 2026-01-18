@@ -42,6 +42,15 @@ else
     echo "✓ Neovim already installed"
 fi
 
+# Install tmux
+if ! command -v tmux &> /dev/null; then
+    echo "Installing tmux..."
+    brew install tmux
+    echo "✓ tmux installed"
+else
+    echo "✓ tmux already installed"
+fi
+
 # Install Amp
 if ! command -v amp &> /dev/null; then
     echo "Installing Amp..."
@@ -60,6 +69,15 @@ else
     echo "✓ Codex already installed"
 fi
 
+# Install Kitty
+if ! command -v kitty &> /dev/null; then
+    echo "Installing Kitty..."
+    curl -L https://sw.kovidgoyal.net/kitty/installer.sh | sh /dev/stdin
+    echo "✓ Kitty installed"
+else
+    echo "✓ Kitty already installed"
+fi
+
 # Install Claude
 if ! command -v claude &> /dev/null; then
     echo "Installing Claude..."
@@ -67,6 +85,15 @@ if ! command -v claude &> /dev/null; then
     echo "✓ Claude installed"
 else
     echo "✓ Claude already installed"
+fi
+
+# Install Cursor
+if ! command -v cursor &> /dev/null; then
+    echo "Installing Cursor..."
+    curl -fsSL https://cursor.com/install | bash
+    echo "✓ Cursor installed"
+else
+    echo "✓ Cursor already installed"
 fi
 
 # Create nvim symlink
@@ -83,6 +110,13 @@ rm -f ~/.zshrc
 ln -s "$DOTFILES_DIR/zsh/.zshrc" ~/.zshrc
 echo "✓ zshrc symlinked to ~/.zshrc"
 
+# Create tmux symlink
+echo "Setting up tmux config..."
+backup_file "$HOME/.tmux.conf"
+rm -f ~/.tmux.conf
+ln -s "$DOTFILES_DIR/tmux/.tmux.conf" ~/.tmux.conf
+echo "✓ tmux config symlinked to ~/.tmux.conf"
+
 # Create ssh symlink
 echo "Setting up ssh config..."
 mkdir -p ~/.ssh
@@ -91,27 +125,6 @@ rm -f ~/.ssh/config
 ln -s "$DOTFILES_DIR/ssh/config" ~/.ssh/config
 chmod 600 ~/.ssh/config
 echo "✓ ssh config symlinked to ~/.ssh/config"
-
-# Ghostty configuration
-echo "Setting up ghostty config..."
-GHOSTTY_SRC="$DOTFILES_DIR/ghostty/config"
-
-if [[ "$OSTYPE" == "darwin"* ]]; then
-    GHOSTTY_CONFIG_DIR="$HOME/Library/Application Support/com.mitchellh.ghostty"
-    if [[ -f "$GHOSTTY_CONFIG_DIR/config.ghostty" || ! -f "$GHOSTTY_CONFIG_DIR/config" ]]; then
-        GHOSTTY_TARGET="$GHOSTTY_CONFIG_DIR/config.ghostty"
-    else
-        GHOSTTY_TARGET="$GHOSTTY_CONFIG_DIR/config"
-    fi
-else
-    GHOSTTY_CONFIG_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/ghostty"
-    GHOSTTY_TARGET="$GHOSTTY_CONFIG_DIR/config"
-fi
-
-mkdir -p "$(dirname "$GHOSTTY_TARGET")"
-backup_file "$GHOSTTY_TARGET"
-cp "$GHOSTTY_SRC" "$GHOSTTY_TARGET"
-echo "✓ Ghostty config installed to $GHOSTTY_TARGET"
 
 # iTerm color preset
 echo "Setting up iTerm color preset..."
