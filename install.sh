@@ -70,12 +70,14 @@ else
 fi
 
 # Install Kitty
-if ! command -v kitty &> /dev/null; then
+if command -v kitty &> /dev/null; then
+    echo "✓ Kitty already installed"
+elif [[ -d "/Applications/Kitty.app" || -d "/Applications/kitty.app" || -d "$HOME/Applications/Kitty.app" || -d "$HOME/Applications/kitty.app" ]]; then
+    echo "✓ Kitty already installed (Applications)"
+else
     echo "Installing Kitty..."
     curl -L https://sw.kovidgoyal.net/kitty/installer.sh | sh /dev/stdin
     echo "✓ Kitty installed"
-else
-    echo "✓ Kitty already installed"
 fi
 
 # Install Claude
