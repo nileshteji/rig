@@ -1,6 +1,6 @@
 alias lspci="system_profiler SPUSBDataType"
 alias gs="git status"
-alias gcm="git commit -m"
+alias gcm="git commit"
 alias gca="git commit --amend"
 alias gco="git checkout"
 alias gcb="git checkout -b"
@@ -43,7 +43,7 @@ export LC_ALL=en_US.UTF-8
 export CHROME_EXECUTABLE="/Applications/Dia.app/Contents/MacOS/Dia"
 export PATH="$HOME/.local/bin:$PATH"
 export PATH="$HOME/.local/bin:$PATH"
-
+export KAMKANAM_GEMINI_API_KEY="AIzaSyDnKiLbKouK3OOE-vSQEkwjM4UgUSBOepY"
 export PATH="$PATH:/Users/nileshteji/Library/Android/sdk/emulator"
 export PATH="/Users/nileshteji/.amp/bin:$PATH"
 export PATH="/opt/homebrew/opt/openjdk@17/bin:$PATH"
