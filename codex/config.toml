@@ -1,0 +1,14 @@
+model = "gpt-5.2-codex"
+model_reasoning_effort = "xhigh"
+
+[features]
+unified_exec = true
+shell_snapshot = true
+
+[mcp_servers.context7]
+url = "https://mcp.context7.com/mcp"
+http_headers = { "CONTEXT7_API_KEY" = "ctx7sk-1d2887fd-f9dc-4f3f-a6fa-522f3bc38af9" }
+
+[mcp_servers.playwright]
+command = "npx"
+args = ["@playwright/mcp@latest"]

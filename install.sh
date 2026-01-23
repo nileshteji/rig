@@ -177,5 +177,21 @@ rm -f ~/.1password/agent.sock
 ln -s "$HOME/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock" ~/.1password/agent.sock
 echo "✓ 1Password agent.sock symlinked to ~/.1password/agent.sock"
 
+# Create Amp config symlink
+echo "Setting up Amp config..."
+mkdir -p ~/.config/amp
+backup_file "$HOME/.config/amp/settings.json"
+rm -f ~/.config/amp/settings.json
+ln -s "$DOTFILES_DIR/amp/settings.json" ~/.config/amp/settings.json
+echo "✓ Amp config symlinked to ~/.config/amp/settings.json"
+
+# Create Codex config symlink
+echo "Setting up Codex config..."
+mkdir -p ~/.codex
+backup_file "$HOME/.codex/config.toml"
+rm -f ~/.codex/config.toml
+ln -s "$DOTFILES_DIR/codex/config.toml" ~/.codex/config.toml
+echo "✓ Codex config symlinked to ~/.codex/config.toml"
+
 echo ""
 echo "✓ All dotfiles installed successfully!"
