@@ -69,16 +69,27 @@ else
     echo "✓ Codex already installed"
 fi
 
-# Install Kitty
-if command -v kitty &> /dev/null; then
-    echo "✓ Kitty already installed"
-elif [[ -d "/Applications/Kitty.app" || -d "/Applications/kitty.app" || -d "$HOME/Applications/Kitty.app" || -d "$HOME/Applications/kitty.app" ]]; then
-    echo "✓ Kitty already installed (Applications)"
+# Install Ghostty
+if command -v ghostty &> /dev/null; then
+    echo "✓ Ghostty already installed"
+elif [[ -d "/Applications/Ghostty.app" || -d "$HOME/Applications/Ghostty.app" ]]; then
+    echo "✓ Ghostty already installed (Applications)"
 else
-    echo "Installing Kitty..."
-    curl -L https://sw.kovidgoyal.net/kitty/installer.sh | sh /dev/stdin
-    echo "✓ Kitty installed"
+    echo "Installing Ghostty..."
+    brew install --cask ghostty
+    echo "✓ Ghostty installed"
 fi
+
+# Install Kitty (disabled for now)
+# if command -v kitty &> /dev/null; then
+#     echo "✓ Kitty already installed"
+# elif [[ -d "/Applications/Kitty.app" || -d "/Applications/kitty.app" || -d "$HOME/Applications/Kitty.app" || -d "$HOME/Applications/kitty.app" ]]; then
+#     echo "✓ Kitty already installed (Applications)"
+# else
+#     echo "Installing Kitty..."
+#     curl -L https://sw.kovidgoyal.net/kitty/installer.sh | sh /dev/stdin
+#     echo "✓ Kitty installed"
+# fi
 
 # Install Claude
 if ! command -v claude &> /dev/null; then
@@ -128,20 +139,36 @@ ln -s "$DOTFILES_DIR/ssh/config" ~/.ssh/config
 chmod 600 ~/.ssh/config
 echo "✓ ssh config symlinked to ~/.ssh/config"
 
-# iTerm color preset
-echo "Setting up iTerm color preset..."
-ITERM_THEME_SRC="$DOTFILES_DIR/iterm/nilesh.itermcolors"
+# Create Ghostty config
+echo "Setting up Ghostty config..."
+GHOSTTY_CONFIG_SRC="$DOTFILES_DIR/ghostty/config"
 
 if [[ "$OSTYPE" == "darwin"* ]]; then
-    ITERM_PRESET_DIR="$HOME/Library/Application Support/iTerm2/Color Presets"
-    ITERM_PRESET_TARGET="$ITERM_PRESET_DIR/$(basename "$ITERM_THEME_SRC")"
-    mkdir -p "$ITERM_PRESET_DIR"
-    backup_file "$ITERM_PRESET_TARGET"
-    cp "$ITERM_THEME_SRC" "$ITERM_PRESET_TARGET"
-    echo "✓ iTerm color preset installed to $ITERM_PRESET_TARGET"
+    GHOSTTY_CONFIG_DIR="$HOME/Library/Application Support/ghostty"
 else
-    echo "Skipping iTerm color preset (macOS only)"
+    GHOSTTY_CONFIG_DIR="$HOME/.config/ghostty"
 fi
+
+mkdir -p "$GHOSTTY_CONFIG_DIR"
+backup_file "$GHOSTTY_CONFIG_DIR/config"
+rm -f "$GHOSTTY_CONFIG_DIR/config"
+ln -s "$GHOSTTY_CONFIG_SRC" "$GHOSTTY_CONFIG_DIR/config"
+echo "✓ Ghostty config installed to $GHOSTTY_CONFIG_DIR/config"
+
+# iTerm color preset (disabled for now)
+# echo "Setting up iTerm color preset..."
+# ITERM_THEME_SRC="$DOTFILES_DIR/iterm/nilesh.itermcolors"
+#
+# if [[ "$OSTYPE" == "darwin"* ]]; then
+#     ITERM_PRESET_DIR="$HOME/Library/Application Support/iTerm2/Color Presets"
+#     ITERM_PRESET_TARGET="$ITERM_PRESET_DIR/$(basename "$ITERM_THEME_SRC")"
+#     mkdir -p "$ITERM_PRESET_DIR"
+#     backup_file "$ITERM_PRESET_TARGET"
+#     cp "$ITERM_THEME_SRC" "$ITERM_PRESET_TARGET"
+#     echo "✓ iTerm color preset installed to $ITERM_PRESET_TARGET"
+# else
+#     echo "Skipping iTerm color preset (macOS only)"
+# fi
 
 # 1Password agent socket
 echo "Setting up 1Password agent socket..."

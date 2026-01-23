@@ -49,3 +49,6 @@ export PATH="/Users/nileshteji/.amp/bin:$PATH"
 export PATH="/opt/homebrew/opt/openjdk@17/bin:$PATH"
 export PATH="/opt/homebrew/opt/postgresql@15/bin:$PATH"
 export SSH_AUTH_SOCK="$HOME/.1password/agent.sock"
+
+# opencode
+export PATH=/Users/nileshteji/.opencode/bin:$PATH
