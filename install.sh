@@ -193,5 +193,13 @@ rm -f ~/.codex/config.toml
 ln -s "$DOTFILES_DIR/codex/config.toml" ~/.codex/config.toml
 echo "✓ Codex config symlinked to ~/.codex/config.toml"
 
+# Create Claude Code config symlink
+echo "Setting up Claude Code config..."
+mkdir -p ~/.claude
+backup_file "$HOME/.claude/settings.json"
+rm -f ~/.claude/settings.json
+ln -s "$DOTFILES_DIR/claude/settings.json" ~/.claude/settings.json
+echo "✓ Claude Code config symlinked to ~/.claude/settings.json"
+
 echo ""
 echo "✓ All dotfiles installed successfully!"
