@@ -210,6 +210,18 @@ rm -f ~/.config/opencode/opencode.json
 ln -s "$DOTFILES_DIR/opencode/opencode.json" ~/.config/opencode/opencode.json
 echo "✓ OpenCode config symlinked to ~/.config/opencode/opencode.json"
 
+# Create OpenCode hidden config symlink
+echo "Setting up OpenCode hidden config..."
+mkdir -p ~/.config
+if [[ -d "$HOME/.config/.opencode" && ! -L "$HOME/.config/.opencode" ]]; then
+    backup_dir "$HOME/.config/.opencode"
+elif [[ -f "$HOME/.config/.opencode" && ! -L "$HOME/.config/.opencode" ]]; then
+    backup_file "$HOME/.config/.opencode"
+fi
+rm -f ~/.config/.opencode
+ln -s "$DOTFILES_DIR/opencode" ~/.config/.opencode
+echo "✓ OpenCode config symlinked to ~/.config/.opencode"
+
 # Create Claude Code config symlink
 echo "Setting up Claude Code config..."
 mkdir -p ~/.claude
