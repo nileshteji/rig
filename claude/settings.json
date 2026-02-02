@@ -1,4 +1,8 @@
 {
+  "statusLine": {
+    "type": "command",
+    "command": "input=$(cat); dir=$(echo \"$input\" | jq -r '.workspace.current_dir'); model=$(echo \"$input\" | jq -r '.model.display_name'); remaining=$(echo \"$input\" | jq -r '.context_window.remaining_percentage // empty'); branch=$(cd \"$dir\" 2>/dev/null && git -c core.fileMode=false config --global --add safe.directory \"$dir\" 2>/dev/null; git branch --show-current 2>/dev/null); context_info=''; [ -n \"$remaining\" ] && context_info=\" | Context: ${remaining}%\"; git_info=''; [ -n \"$branch\" ] && git_info=\" (${branch})\"; echo \"${dir}${git_info} | ${model}${context_info}\""
+  },
   "mcpServers": {
     "task-master-ai": {
       "command": "npx",

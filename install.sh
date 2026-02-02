@@ -69,6 +69,15 @@ else
     echo "✓ Codex already installed"
 fi
 
+# Install OpenCode
+if ! command -v opencode &> /dev/null; then
+    echo "Installing OpenCode..."
+    brew install anomalyco/tap/opencode
+    echo "✓ OpenCode installed"
+else
+    echo "✓ OpenCode already installed"
+fi
+
 # Install Ghostty
 if command -v ghostty &> /dev/null; then
     echo "✓ Ghostty already installed"
@@ -193,6 +202,14 @@ rm -f ~/.codex/config.toml
 ln -s "$DOTFILES_DIR/codex/config.toml" ~/.codex/config.toml
 echo "✓ Codex config symlinked to ~/.codex/config.toml"
 
+# Create OpenCode config symlink
+echo "Setting up OpenCode config..."
+mkdir -p ~/.config/opencode
+backup_file "$HOME/.config/opencode/opencode.json"
+rm -f ~/.config/opencode/opencode.json
+ln -s "$DOTFILES_DIR/opencode/opencode.json" ~/.config/opencode/opencode.json
+echo "✓ OpenCode config symlinked to ~/.config/opencode/opencode.json"
+
 # Create Claude Code config symlink
 echo "Setting up Claude Code config..."
 mkdir -p ~/.claude
@@ -200,6 +217,15 @@ backup_file "$HOME/.claude/settings.json"
 rm -f ~/.claude/settings.json
 ln -s "$DOTFILES_DIR/claude/settings.json" ~/.claude/settings.json
 echo "✓ Claude Code config symlinked to ~/.claude/settings.json"
+
+# Create Claude Desktop config symlink
+echo "Setting up Claude Desktop config..."
+CLAUDE_DESKTOP_CONFIG_DIR="$HOME/Library/Application Support/Claude"
+mkdir -p "$CLAUDE_DESKTOP_CONFIG_DIR"
+backup_file "$CLAUDE_DESKTOP_CONFIG_DIR/claude_desktop_config.json"
+rm -f "$CLAUDE_DESKTOP_CONFIG_DIR/claude_desktop_config.json"
+ln -s "$DOTFILES_DIR/claude-desktop/claude_desktop_config.json" "$CLAUDE_DESKTOP_CONFIG_DIR/claude_desktop_config.json"
+echo "✓ Claude Desktop config symlinked to $CLAUDE_DESKTOP_CONFIG_DIR/claude_desktop_config.json"
 
 echo ""
 echo "✓ All dotfiles installed successfully!"

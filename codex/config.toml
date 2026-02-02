@@ -6,16 +6,13 @@ tool_output_token_limit = 25000
 # With tool_output_token_limit=25000 ⇒ 273000 - (25000 + 15000) = 233000
 model_auto_compact_token_limit = 233000
 
-
 [features]
 unified_exec = true
 shell_snapshot = true
 ghost_commit = false
-unified_exec = true
-apply_patch_freeform = true
-web_search_request = true
 skills = true
-shell_snapshot = true
+apps = true
+personality = true
 
 
 
@@ -26,3 +23,9 @@ http_headers = { "CONTEXT7_API_KEY" = "ctx7sk-1d2887fd-f9dc-4f3f-a6fa-522f3bc38a
 [mcp_servers.playwright]
 command = "npx"
 args = ["@playwright/mcp@latest"]
+
+[projects."/Users/nileshteji/Developer/nileshteji.dev"]
+trust_level = "trusted"
+
+[notice.model_migrations]
+"gpt-5.1-codex-max" = "gpt-5.2-codex"
