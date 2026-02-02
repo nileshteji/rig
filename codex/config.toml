@@ -27,5 +27,8 @@ args = ["@playwright/mcp@latest"]
 [projects."/Users/nileshteji/Developer/nileshteji.dev"]
 trust_level = "trusted"
 
+[projects."/Users/nileshteji/dot-files"]
+trust_level = "trusted"
+
 [notice.model_migrations]
 "gpt-5.1-codex-max" = "gpt-5.2-codex"
