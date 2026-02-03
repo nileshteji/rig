@@ -5,6 +5,7 @@ tool_output_token_limit = 25000
 # Formula: 273000 - (tool_output_token_limit + 15000)
 # With tool_output_token_limit=25000 ⇒ 273000 - (25000 + 15000) = 233000
 model_auto_compact_token_limit = 233000
+personality = "pragmatic"
 
 [features]
 unified_exec = true
@@ -14,20 +15,26 @@ skills = true
 apps = true
 personality = true
 
-
-
 [mcp_servers.context7]
 url = "https://mcp.context7.com/mcp"
-http_headers = { "CONTEXT7_API_KEY" = "ctx7sk-1d2887fd-f9dc-4f3f-a6fa-522f3bc38af9" }
+
+[mcp_servers.context7.http_headers]
+CONTEXT7_API_KEY = "ctx7sk-1d2887fd-f9dc-4f3f-a6fa-522f3bc38af9"
 
 [mcp_servers.playwright]
 command = "npx"
 args = ["@playwright/mcp@latest"]
 
+[mcp_servers.openaiDeveloperDocs]
+url = "https://developers.openai.com/mcp"
+
 [projects."/Users/nileshteji/Developer/nileshteji.dev"]
 trust_level = "trusted"
 
 [projects."/Users/nileshteji/dot-files"]
+trust_level = "trusted"
+
+[projects."/Users/nileshteji/Developer/leapscholar-chatgpt-app"]
 trust_level = "trusted"
 
 [notice.model_migrations]
