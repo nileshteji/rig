@@ -30,8 +30,11 @@
     "openaiDeveloperDocs": {
       "url": "https://developers.openai.com/mcp"
     },
-    "figma": {
-      "url": "https://mcp.figma.com/mcp"
-    }
+"figma": {
+    "url": "https://mcp.figma.com/mcp"
+  },
+  "notion": {
+    "url": "https://mcp.notion.so/mcp"
   }
+}
 }

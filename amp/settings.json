@@ -22,9 +22,13 @@
         "url": "https://developers.openai.com/mcp",
         "type": "http"
     },
-    "figma": {
-        "url": "https://mcp.figma.com/mcp",
-        "type": "http"
-    }
+"figma": {
+    "url": "https://mcp.figma.com/mcp",
+    "type": "http"
+  },
+  "notion": {
+    "url": "https://mcp.notion.so/mcp",
+    "type": "http"
   }
+}
 }

@@ -23,9 +23,13 @@
             "type": "remote",
             "url": "https://developers.openai.com/mcp"
         },
-        "figma": {
-            "url": "https://mcp.figma.com/mcp",
-            "type": "remote"
-     }
-    }
+"figma": {
+    "url": "https://mcp.figma.com/mcp",
+    "type": "remote"
+  },
+  "notion": {
+    "url": "https://mcp.notion.so/mcp",
+    "type": "remote"
+  }
+}
 }

@@ -38,6 +38,9 @@ TASK_MASTER_TOOLS = "all"
 [mcp_servers.figma]
 url = "https://mcp.figma.com/mcp"
 
+[mcp_servers.notion]
+url = "https://mcp.notion.so/mcp"
+
 [projects."/Users/nileshteji/Developer/nileshteji.dev"]
 trust_level = "trusted"
 
