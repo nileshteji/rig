@@ -17,6 +17,14 @@
     "playwright": {
         "command": "npx",
         "args": ["@playwright/mcp@latest"]
+    },
+    "openaiDeveloperDocs": {
+        "url": "https://developers.openai.com/mcp",
+        "type": "http"
+    },
+    "figma": {
+        "url": "https://mcp.figma.com/mcp",
+        "type": "http"
     }
   }
 }

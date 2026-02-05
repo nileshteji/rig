@@ -1,10 +1,12 @@
 {
+  "model": "sonnet",
   "statusLine": {
     "type": "command",
     "command": "input=$(cat); dir=$(echo \"$input\" | jq -r '.workspace.current_dir'); model=$(echo \"$input\" | jq -r '.model.display_name'); remaining=$(echo \"$input\" | jq -r '.context_window.remaining_percentage // empty'); branch=$(cd \"$dir\" 2>/dev/null && git -c core.fileMode=false config --global --add safe.directory \"$dir\" 2>/dev/null; git branch --show-current 2>/dev/null); context_info=''; [ -n \"$remaining\" ] && context_info=\" | Context: ${remaining}%\"; git_info=''; [ -n \"$branch\" ] && git_info=\" (${branch})\"; echo \"${dir}${git_info} | ${model}${context_info}\""
   },
   "mcpServers": {
     "task-master-ai": {
+      "type": "stdio",
       "command": "npx",
       "args": [
         "-y",
@@ -15,20 +17,28 @@
       }
     },
     "context7": {
-      "command": "npx",
-      "args": [
-        "-y",
-        "@context7/mcp@latest"
-      ],
-      "env": {
+      "type": "http",
+      "url": "https://mcp.context7.com/mcp",
+      "headers": {
         "CONTEXT7_API_KEY": "ctx7sk-1d2887fd-f9dc-4f3f-a6fa-522f3bc38af9"
       }
     },
     "playwright": {
+      "type": "stdio",
       "command": "npx",
       "args": [
+        "-y",
         "@playwright/mcp@latest"
-      ]
+      ],
+      "env": {}
+    },
+    "openaiDeveloperDocs": {
+      "type": "http",
+      "url": "https://developers.openai.com/mcp"
+    },
+    "figma": {
+      "type": "http",
+      "url": "https://mcp.figma.com/mcp"
     }
   }
 }

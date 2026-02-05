@@ -18,6 +18,14 @@
         "playwright": {
             "type": "local",
             "command": ["npx", "@playwright/mcp@latest"]
-        }
+        },
+        "openaiDeveloperDocs": {
+            "type": "remote",
+            "url": "https://developers.openai.com/mcp"
+        },
+        "figma": {
+            "url": "https://mcp.figma.com/mcp",
+            "type": "remote"
+     }
     }
 }
