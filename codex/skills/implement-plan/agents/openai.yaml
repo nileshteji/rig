@@ -1,0 +1,4 @@
+interface:
+  display_name: "Implement Plan"
+  short_description: "Execute approved plans into verified code changes"
+  default_prompt: "Implement the approved plan end-to-end with scoped edits, verification, and a completion report. Place new files in structured, domain-specific packages using stack-appropriate naming conventions (for example, Android package naming for Android and module/package naming consistency for TypeScript). When creating a new package/module directory, add a context.md with a one-line responsibility summary for each file in that package."

@@ -203,13 +203,28 @@ rm -f ~/.config/amp/settings.json
 ln -s "$DOTFILES_DIR/amp/settings.json" ~/.config/amp/settings.json
 echo "✓ Amp config symlinked to ~/.config/amp/settings.json"
 
-# Create Codex config symlink
+# Create Codex config and skills symlinks
 echo "Setting up Codex config..."
-mkdir -p ~/.codex
-backup_file "$HOME/.codex/config.toml"
-rm -f ~/.codex/config.toml
-ln -s "$DOTFILES_DIR/codex/config.toml" ~/.codex/config.toml
-echo "✓ Codex config symlinked to ~/.codex/config.toml"
+mkdir -p "$DOTFILES_DIR/codex/skills"
+
+if [[ -d "$HOME/.codex" && ! -L "$HOME/.codex" ]]; then
+    backup_dir "$HOME/.codex"
+elif [[ -f "$HOME/.codex" && ! -L "$HOME/.codex" ]]; then
+    backup_file "$HOME/.codex"
+fi
+rm -rf "$HOME/.codex"
+ln -s "$DOTFILES_DIR/codex" "$HOME/.codex"
+echo "✓ Codex config symlinked to ~/.codex"
+
+# Keep legacy path for compatibility with older Codex installs.
+if [[ -d "$HOME/codex" && ! -L "$HOME/codex" ]]; then
+    backup_dir "$HOME/codex"
+elif [[ -f "$HOME/codex" && ! -L "$HOME/codex" ]]; then
+    backup_file "$HOME/codex"
+fi
+rm -rf "$HOME/codex"
+ln -s "$HOME/.codex" "$HOME/codex"
+echo "✓ Codex compatibility symlinked to ~/codex -> ~/.codex"
 
 # Create OpenCode config symlink
 echo "Setting up OpenCode config..."

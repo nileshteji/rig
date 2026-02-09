@@ -1,5 +1,5 @@
-model = "gpt-5.2-codex"
-model_reasoning_effort = "high"
+model = "gpt-5.3-codex"
+model_reasoning_effort = "medium"
 tool_output_token_limit = 25000
 # Leave room for native compaction near the 272–273k context window.
 # Formula: 273000 - (tool_output_token_limit + 15000)
@@ -39,7 +39,7 @@ TASK_MASTER_TOOLS = "all"
 url = "https://mcp.figma.com/mcp"
 
 [mcp_servers.notion]
-url = "https://mcp.notion.so/mcp"
+url = "https://mcp.notion.com/mcp"
 
 [projects."/Users/nileshteji/Developer/nileshteji.dev"]
 trust_level = "trusted"
@@ -55,6 +55,15 @@ trust_level = "trusted"
 
 [projects."/Users/nileshteji"]
 trust_level = "trusted"
+
+[projects."/Users/nileshteji/Developer/leapscholar-ios"]
+trust_level = "trusted"
+
+[projects."/Users/nileshteji/Developer/leapscholar-android"]
+trust_level = "trusted"
+
+[notice]
+hide_rate_limit_model_nudge = true
 
 [notice.model_migrations]
 "gpt-5.1-codex-max" = "gpt-5.2-codex"

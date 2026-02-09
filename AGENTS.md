@@ -13,15 +13,19 @@ This repository is a small dotfiles bundle for macOS. Top-level `install.sh` orc
 - `./install.sh`: Installs Homebrew, Oh My Zsh, Neovim, Tmux, Amp, Codex, Claude, Cursor, and Ghostty, then symlinks or copies configs into `~/.config`, `~/.zshrc`, and `~/.ssh`. On macOS it writes Ghostty config under `~/Library/Application Support`.
 - `nvim +q`: Quick smoke test to ensure Neovim loads without errors.
 - `nvim --headless +'checkhealth' +qa`: Run Neovim health checks to verify plugins and LSP servers.
+- `nvim --headless +'Lazy! check' +qa`: Check for outdated plugins without interactive prompts.
 - Inside Neovim:
   - `:Lazy` to check plugin status and updates.
+  - `:Lazy sync` to update all plugins.
   - `:TSUpdate` to update Treesitter parsers.
   - `:Mason` to view and manage LSP servers and tools.
   - `:checkhealth` to diagnose configuration issues.
-- No automated test suite exists. Validate by:
+- No automated test suite or linter commands exist. This is a config-only repo.
+- Manual validation steps:
   - `ls -l ~/.config/nvim` (symlink check)
   - `ls -l ~/.zshrc` (symlink check)
   - `ssh -G github.com` (ensure `ssh/config` parses)
+  - `ls -l ~/.1password/agent.sock` (verify 1Password socket link)
   - Open Neovim and verify plugin loading and LSP servers start correctly.
 
 ## Coding Style & Naming Conventions
