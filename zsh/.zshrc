@@ -58,3 +58,5 @@ export SSH_AUTH_SOCK="$HOME/.1password/agent.sock"
 
 # opencode
 export PATH=/Users/nileshteji/.opencode/bin:$PATH
+export PATH="/opt/homebrew/opt/openjdk@17/bin:$PATH"
+export PATH="$HOME/.jenv/bin:$PATH"
