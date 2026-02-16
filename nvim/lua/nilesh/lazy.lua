@@ -72,7 +72,7 @@ require("lazy").setup({
         build = ':TSUpdate',
         config = function()
             require('nvim-treesitter').setup {
-                ensure_installed = { "kotlin", "swift", "javascript", "typescript" },
+                ensure_installed = { "java", "kotlin", "swift", "javascript", "typescript" },
                 sync_install = false,
                 auto_install = true,
                 highlight = {
@@ -170,11 +170,18 @@ require("lazy").setup({
         config = function()
             require('mason-lspconfig').setup({
                 ensure_installed = {
+                    'jdtls',
                     'kotlin_language_server',
                     'lua_ls',
+                    'sourcekit',
                 },
             })
         end
+    },
+
+    {
+        "mfussenegger/nvim-jdtls",
+        ft = { "java" },
     },
 
     -- Autocompletion
@@ -254,6 +261,7 @@ require("lazy").setup({
 
             vim.lsp.enable('kotlin_language_server')
             vim.lsp.enable('lua_ls')
+            vim.lsp.enable('sourcekit')
 
             vim.diagnostic.config({
                 virtual_text = true,

@@ -19,7 +19,7 @@
     }
   },
   "preferences": {
-    "sidebarMode": "chat",
-    "coworkScheduledTasksEnabled": false
+    "coworkScheduledTasksEnabled": false,
+    "sidebarMode": "code"
   }
 }
