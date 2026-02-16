@@ -162,7 +162,7 @@ echo "Setting up Ghostty config..."
 GHOSTTY_CONFIG_SRC="$DOTFILES_DIR/ghostty/config"
 
 if [[ "$OSTYPE" == "darwin"* ]]; then
-    GHOSTTY_CONFIG_DIR="$HOME/Library/Application Support/ghostty"
+    GHOSTTY_CONFIG_DIR="$HOME/Library/Application Support/com.mitchellh.ghostty"
 else
     GHOSTTY_CONFIG_DIR="$HOME/.config/ghostty"
 fi
