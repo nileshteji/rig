@@ -60,6 +60,15 @@ else
     echo "✓ tmux already installed"
 fi
 
+# Install Lazygit
+if ! command -v lazygit &> /dev/null; then
+    echo "Installing Lazygit..."
+    brew install lazygit
+    echo "✓ Lazygit installed"
+else
+    echo "✓ Lazygit already installed"
+fi
+
 # Install Amp
 if ! command -v amp &> /dev/null; then
     echo "Installing Amp..."
