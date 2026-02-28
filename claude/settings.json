@@ -49,5 +49,6 @@
       "url": "https://mcp.notion.com/mcp"
     }
   },
-  "effortLevel": "low"
+  "effortLevel": "medium",
+  "theme": "dark"
 }

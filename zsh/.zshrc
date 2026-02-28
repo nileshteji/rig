@@ -60,3 +60,4 @@ export SSH_AUTH_SOCK="$HOME/.1password/agent.sock"
 export PATH=/Users/nileshteji/.opencode/bin:$PATH
 export PATH="/opt/homebrew/opt/openjdk@17/bin:$PATH"
 export PATH="$HOME/.jenv/bin:$PATH"
+export TERM=xterm-256color

@@ -12,12 +12,13 @@
   adjust-cell-height = 2
 
   # --- Theme and Colors ---
-  # Catppuccin with automatic light/dark switching
-  theme = light:Catppuccin Latte,dark:Catppuccin Mocha
-
-  # --- Window and Appearance ---
-  background-opacity = 0.9
-  background-blur-radius = 20
+# Catppuccin with automatic light/dark switching
+#  theme = light:Catppuccin Latte,dark:Catppuccin Mocha
+#theme = Catppuccin Latte
+# --- Window and Appearance ---
+ # unfocused-split-opacity = 0.25
+#  background-opacity = 0.9
+ # background-blur-radius = 20
   macos-titlebar-style = transparent
   window-padding-x = 10
   window-padding-y = 8

@@ -72,7 +72,7 @@ require("lazy").setup({
         build = ':TSUpdate',
         config = function()
             require('nvim-treesitter').setup {
-                ensure_installed = { "java", "kotlin", "swift", "javascript", "typescript" },
+                ensure_installed = { "java", "kotlin", "python", "swift", "javascript", "typescript" },
                 sync_install = false,
                 auto_install = true,
                 highlight = {
@@ -173,6 +173,7 @@ require("lazy").setup({
                     'jdtls',
                     'kotlin_language_server',
                     'lua_ls',
+                    'pyright',
                     'sourcekit',
                 },
             })
@@ -261,6 +262,7 @@ require("lazy").setup({
 
             vim.lsp.enable('kotlin_language_server')
             vim.lsp.enable('lua_ls')
+            vim.lsp.enable('pyright')
             vim.lsp.enable('sourcekit')
 
             vim.diagnostic.config({
