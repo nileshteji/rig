@@ -60,4 +60,11 @@ export SSH_AUTH_SOCK="$HOME/.1password/agent.sock"
 export PATH=/Users/nileshteji/.opencode/bin:$PATH
 export PATH="/opt/homebrew/opt/openjdk@17/bin:$PATH"
 export PATH="$HOME/.jenv/bin:$PATH"
+export GOOGLE_WORKSPACE_CLI_CREDENTIALS_FILE="$HOME/credentials.json"
 export TERM=xterm-256color
+
+# The next line updates PATH for the Google Cloud SDK.
+if [ -f '/Users/nileshteji/Downloads/google-cloud-sdk/path.zsh.inc' ]; then . '/Users/nileshteji/Downloads/google-cloud-sdk/path.zsh.inc'; fi
+
+# The next line enables shell command completion for gcloud.
+if [ -f '/Users/nileshteji/Downloads/google-cloud-sdk/completion.zsh.inc' ]; then . '/Users/nileshteji/Downloads/google-cloud-sdk/completion.zsh.inc'; fi

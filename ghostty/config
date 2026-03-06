@@ -13,7 +13,7 @@
 
   # --- Theme and Colors ---
 # Catppuccin with automatic light/dark switching
-#  theme = light:Catppuccin Latte,dark:Catppuccin Mocha
+  #theme = light:Catppuccin Latte,dark:Catppuccin Mocha
 #theme = Catppuccin Latte
 # --- Window and Appearance ---
  # unfocused-split-opacity = 0.25
