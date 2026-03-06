@@ -1,11 +1,9 @@
-model = "gpt-5.3-codex"
-model_reasoning_effort = "medium"
-tool_output_token_limit = 25000
-# Leave room for native compaction near the 272–273k context window.
-# Formula: 273000 - (tool_output_token_limit + 15000)
-# With tool_output_token_limit=25000 ⇒ 273000 - (25000 + 15000) = 233000
-model_auto_compact_token_limit = 233000
+model = "gpt-5.4"
+model_reasoning_effort = "high"
+model_context_window = 1000000
+model_auto_compact_token_limit = 900000
 personality = "pragmatic"
+plan_mode_reasoning_effort = "high"
 
 [features]
 unified_exec = true
@@ -31,6 +29,11 @@ url = "https://developers.openai.com/mcp"
 [mcp_servers.task-master-ai]
 command = "npx"
 args = ["-y", "task-master-ai"]
+
+
+[mcp_servers.gws]
+command = "gws"
+args = ["mcp", "-s", "all"]
 
 [mcp_servers.task-master-ai.env]
 TASK_MASTER_TOOLS = "all"
@@ -62,8 +65,14 @@ trust_level = "trusted"
 [projects."/Users/nileshteji/Developer/leapscholar-android"]
 trust_level = "trusted"
 
+[projects."/Users/nileshteji/.codex"]
+trust_level = "trusted"
+
 [notice]
 hide_rate_limit_model_nudge = true
 
 [notice.model_migrations]
 "gpt-5.1-codex-max" = "gpt-5.2-codex"
+
+[tui]
+status_line = ["model-with-reasoning", "context-remaining", "five-hour-limit", "weekly-limit", "context-window-size", "used-tokens", "total-input-tokens", "total-output-tokens"]

@@ -212,18 +212,21 @@ rm -f ~/.config/amp/settings.json
 ln -s "$DOTFILES_DIR/amp/settings.json" ~/.config/amp/settings.json
 echo "✓ Amp config symlinked to ~/.config/amp/settings.json"
 
-# Copy Codex config and skills
+# Create Codex config symlinks
 echo "Setting up Codex config..."
-if [[ "$DOTFILES_DIR/codex/config.toml" ]]; then
+if [[ -f "$DOTFILES_DIR/codex/config.toml" ]]; then
+    mkdir -p "$HOME/.codex"
     if [[ -f "$HOME/.codex/config.toml" ]]; then
         backup_file "$HOME/.codex/config.toml"
     fi
     if [[ -d "$HOME/.codex/skills" ]]; then
         backup_dir "$HOME/.codex/skills"
     fi
-    cp "$DOTFILES_DIR/codex/config.toml" "$HOME/.codex/config.toml"
-    cp -r "$DOTFILES_DIR/codex/skills" "$HOME/.codex/skills"
-    echo "✓ Codex config.toml and skills copied to ~/.codex"
+    rm -f "$HOME/.codex/config.toml"
+    ln -s "$DOTFILES_DIR/codex/config.toml" "$HOME/.codex/config.toml"
+    rm -rf "$HOME/.codex/skills"
+    ln -s "$DOTFILES_DIR/codex/skills" "$HOME/.codex/skills"
+    echo "✓ Codex config.toml and skills symlinked to ~/.codex"
 fi
 
 # Create OpenCode config symlink

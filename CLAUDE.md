@@ -26,7 +26,7 @@ tmux/.tmux.conf → Tmux config (symlinked to ~/.tmux.conf)
 ssh/config      → SSH config (symlinked to ~/.ssh/config)
 ghostty/config  → Terminal config (symlinked to ~/Library/Application Support/ghostty/config)
 amp/settings.json → Amp AI config
-codex/config.toml → Codex AI config
+codex/config.toml → Codex AI config (symlinked to ~/.codex/config.toml)
 claude/settings.json → Claude Code config
 ```
 
