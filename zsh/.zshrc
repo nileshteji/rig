@@ -60,11 +60,23 @@ export SSH_AUTH_SOCK="$HOME/.1password/agent.sock"
 export PATH=/Users/nileshteji/.opencode/bin:$PATH
 export PATH="/opt/homebrew/opt/openjdk@17/bin:$PATH"
 export PATH="$HOME/.jenv/bin:$PATH"
-export GOOGLE_WORKSPACE_CLI_CREDENTIALS_FILE="$HOME/credentials.json"
 export TERM=xterm-256color
 
-# The next line updates PATH for the Google Cloud SDK.
-if [ -f '/Users/nileshteji/Downloads/google-cloud-sdk/path.zsh.inc' ]; then . '/Users/nileshteji/Downloads/google-cloud-sdk/path.zsh.inc'; fi
+# Google Workspace CLI credentials
+if [[ -f "$HOME/.config/gws/credentials.json" ]]; then
+    export GOOGLE_WORKSPACE_CLI_CREDENTIALS_FILE="$HOME/.config/gws/credentials.json"
+fi
 
-# The next line enables shell command completion for gcloud.
-if [ -f '/Users/nileshteji/Downloads/google-cloud-sdk/completion.zsh.inc' ]; then . '/Users/nileshteji/Downloads/google-cloud-sdk/completion.zsh.inc'; fi
+# Google Cloud CLI (Homebrew)
+for gcloud_sdk_root in "/opt/homebrew/share/google-cloud-sdk" "/usr/local/share/google-cloud-sdk"; do
+    if [[ -d "$gcloud_sdk_root" ]]; then
+        export PATH="$gcloud_sdk_root/bin:$PATH"
+        if [[ -f "$gcloud_sdk_root/path.zsh.inc" ]]; then
+            . "$gcloud_sdk_root/path.zsh.inc"
+        fi
+        if [[ -f "$gcloud_sdk_root/completion.zsh.inc" ]]; then
+            . "$gcloud_sdk_root/completion.zsh.inc"
+        fi
+        break
+    fi
+done

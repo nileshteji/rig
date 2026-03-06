@@ -96,6 +96,28 @@ else
     echo "✓ OpenCode already installed"
 fi
 
+# Install Google Workspace CLI
+if command -v gws &> /dev/null && gws --help 2>&1 | grep -q "Google Workspace CLI"; then
+    echo "✓ Google Workspace CLI already installed"
+elif brew list --formula gws &> /dev/null; then
+    echo "✗ Found conflicting Homebrew formula 'gws' (not Google Workspace CLI)"
+    echo "  Run 'brew uninstall gws' and re-run this installer."
+    exit 1
+else
+    echo "Installing Google Workspace CLI..."
+    brew install googleworkspace-cli
+    echo "✓ Google Workspace CLI installed"
+fi
+
+# Install Google Cloud CLI
+if command -v gcloud &> /dev/null; then
+    echo "✓ Google Cloud CLI already installed"
+else
+    echo "Installing Google Cloud CLI..."
+    brew install --cask gcloud-cli
+    echo "✓ Google Cloud CLI installed"
+fi
+
 # Install Ghostty
 if command -v ghostty &> /dev/null; then
     echo "✓ Ghostty already installed"
@@ -182,6 +204,23 @@ rm -f "$GHOSTTY_CONFIG_DIR/config"
 ln -s "$GHOSTTY_CONFIG_SRC" "$GHOSTTY_CONFIG_DIR/config"
 echo "✓ Ghostty config installed to $GHOSTTY_CONFIG_DIR/config"
 
+# Create Google Workspace CLI credentials file
+echo "Setting up Google Workspace CLI credentials..."
+GWS_CREDENTIALS_SRC="$DOTFILES_DIR/gws/credentials.json"
+GWS_CONFIG_DIR="$HOME/.config/gws"
+GWS_CREDENTIALS_TARGET="$GWS_CONFIG_DIR/credentials.json"
+
+mkdir -p "$GWS_CONFIG_DIR"
+if [[ -f "$GWS_CREDENTIALS_SRC" ]]; then
+    backup_file "$GWS_CREDENTIALS_TARGET"
+    cp "$GWS_CREDENTIALS_SRC" "$GWS_CREDENTIALS_TARGET"
+    chmod 600 "$GWS_CREDENTIALS_TARGET"
+    echo "✓ Google Workspace credentials copied to $GWS_CREDENTIALS_TARGET"
+else
+    echo "  No repo credentials file found at $GWS_CREDENTIALS_SRC"
+    echo "  Add one there or run 'gws auth setup' and 'gws auth login' manually."
+fi
+
 # iTerm color preset (disabled for now)
 # echo "Setting up iTerm color preset..."
 # ITERM_THEME_SRC="$DOTFILES_DIR/iterm/nilesh.itermcolors"
@@ -266,5 +305,10 @@ rm -f "$CLAUDE_DESKTOP_CONFIG_DIR/claude_desktop_config.json"
 ln -s "$DOTFILES_DIR/claude-desktop/claude_desktop_config.json" "$CLAUDE_DESKTOP_CONFIG_DIR/claude_desktop_config.json"
 echo "✓ Claude Desktop config symlinked to $CLAUDE_DESKTOP_CONFIG_DIR/claude_desktop_config.json"
 
+echo ""
+echo "Next steps for Google Workspace tooling:"
+echo "  1. Run 'source ~/.zshrc'"
+echo "  2. If credentials were not copied, run 'gcloud auth login'"
+echo "  3. Then run 'gws auth setup' and 'gws auth login'"
 echo ""
 echo "✓ All dotfiles installed successfully!"
