@@ -1,5 +1,5 @@
 model = "gpt-5.4"
-model_reasoning_effort = "high"
+model_reasoning_effort = "medium"
 model_context_window = 1000000
 model_auto_compact_token_limit = 900000
 personality = "pragmatic"
@@ -12,6 +12,7 @@ ghost_commit = false
 skills = true
 apps = true
 personality = true
+multi_agent = true
 
 [mcp_servers.context7]
 url = "https://mcp.context7.com/mcp"
@@ -66,6 +67,12 @@ trust_level = "trusted"
 trust_level = "trusted"
 
 [projects."/Users/nileshteji/.codex"]
+trust_level = "trusted"
+
+[projects."/Users/nileshteji/Developer/musical-waddle"]
+trust_level = "trusted"
+
+[projects."/Users/nileshteji/Developer/notex"]
 trust_level = "trusted"
 
 [notice]

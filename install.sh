@@ -296,6 +296,20 @@ rm -f ~/.claude/settings.json
 ln -s "$DOTFILES_DIR/claude/settings.json" ~/.claude/settings.json
 echo "✓ Claude Code config symlinked to ~/.claude/settings.json"
 
+# Create Claude Code statusline script symlink
+backup_file "$HOME/.claude/statusline-command.sh"
+rm -f ~/.claude/statusline-command.sh
+ln -s "$DOTFILES_DIR/claude/statusline-command.sh" ~/.claude/statusline-command.sh
+echo "✓ Claude Code statusline script symlinked to ~/.claude/statusline-command.sh"
+
+# Create Claude Code agents symlink
+if [[ -d "$HOME/.claude/agents" && ! -L "$HOME/.claude/agents" ]]; then
+    backup_dir "$HOME/.claude/agents"
+fi
+rm -rf ~/.claude/agents
+ln -s "$DOTFILES_DIR/claude/agents" ~/.claude/agents
+echo "✓ Claude Code agents symlinked to ~/.claude/agents"
+
 # Create Claude Desktop config symlink
 echo "Setting up Claude Desktop config..."
 CLAUDE_DESKTOP_CONFIG_DIR="$HOME/Library/Application Support/Claude"

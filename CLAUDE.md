@@ -28,6 +28,8 @@ ghostty/config  → Terminal config (symlinked to ~/Library/Application Support/
 amp/settings.json → Amp AI config
 codex/config.toml → Codex AI config (symlinked to ~/.codex/config.toml)
 claude/settings.json → Claude Code config
+  statusline-command.sh → Custom statusline script
+  agents/              → User-level custom agents (symlinked to ~/.claude/agents)
 ```
 
 ## Coding Style
