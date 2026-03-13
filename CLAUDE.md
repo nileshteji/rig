@@ -30,6 +30,7 @@ codex/config.toml → Codex AI config (symlinked to ~/.codex/config.toml)
 claude/settings.json → Claude Code config
   statusline-command.sh → Custom statusline script
   agents/              → User-level custom agents (symlinked to ~/.claude/agents)
+  skills/              → User-level custom skills (symlinked to ~/.claude/skills)
 ```
 
 ## Coding Style
@@ -47,3 +48,11 @@ Plugins managed by Lazy.nvim. Key modules in `nvim/lua/nilesh/`:
 - `set.lua`: Editor options
 
 To add LSP servers: update `ensure_installed` in `lazy.lua` and call `vim.lsp.enable()`.
+
+## gstack
+
+Use the `/browse` skill from gstack for all web browsing. Never use `mcp__Claude_in_Chrome__*` tools.
+
+Available skills: `/plan-ceo-review`, `/plan-eng-review`, `/review`, `/ship`, `/browse`, `/retro`
+
+If gstack skills aren't working, run `cd .claude/skills/gstack && ./setup` to build the binary and register skills.

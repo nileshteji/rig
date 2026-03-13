@@ -80,7 +80,7 @@ The installer gives you a **interactive menu** powered by [gum](https://github.c
 | **Amp** | Config + MCP servers |
 | **Codex** | Config, skills, agents |
 | **OpenCode** | Config + MCP servers |
-| **Claude** | Claude Code, Desktop, Cursor + agents |
+| **Claude** | Claude Code, Desktop, Cursor + agents, [gstack](https://github.com/garrytan/gstack.git) skills |
 | **Google Cloud** | GWS CLI + gcloud |
 | **SSH** | 1Password agent socket |
 
@@ -106,7 +106,7 @@ rig/
   amp/                Amp settings + MCP servers
   codex/              Codex config, skills, agents
   opencode/           OpenCode config
-  claude/             Claude Code settings, statusline, agents
+  claude/             Claude Code settings, statusline, agents, skills
   claude-desktop/     Claude Desktop config
   gws/                Google Workspace CLI setup
   iterm/              iTerm2 color preset (legacy)
@@ -244,6 +244,10 @@ vim.lsp.enable('tsserver')
 > `gum` and `Homebrew` are installed automatically by the installer if missing.
 
 <br>
+
+## Acknowledgements
+
+- [gstack](https://github.com/garrytan/gstack.git) by [Garry Tan](https://github.com/garrytan) — extremely powerful Claude Code skills for browsing, QA, PR review, shipping, and engineering retrospectives. Installed automatically by the Claude module.
 
 ---
 
