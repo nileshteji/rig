@@ -112,22 +112,12 @@ remove_opencode() {
 }
 
 remove_claude() {
-    # Claude Code
     if command -v claude &> /dev/null; then
         echo "Uninstalling Claude Code..."
         npm uninstall -g @anthropic-ai/claude-code 2>/dev/null || true
         echo "✓ Claude Code uninstalled"
     else
         echo "  Claude Code not installed"
-    fi
-
-    # Cursor
-    if command -v cursor &> /dev/null; then
-        echo "Uninstalling Cursor..."
-        rm -f "$(command -v cursor)" 2>/dev/null || true
-        echo "✓ Cursor uninstalled"
-    else
-        echo "  Cursor not installed"
     fi
 
     # Claude Code config symlinks
@@ -138,6 +128,16 @@ remove_claude() {
     # Claude Desktop config
     CLAUDE_DESKTOP_CONFIG_DIR="$HOME/Library/Application Support/Claude"
     remove_symlink "$CLAUDE_DESKTOP_CONFIG_DIR/claude_desktop_config.json" "Claude Desktop config"
+}
+
+remove_cursor() {
+    if command -v cursor &> /dev/null; then
+        echo "Uninstalling Cursor..."
+        rm -f "$(command -v cursor)" 2>/dev/null || true
+        echo "✓ Cursor uninstalled"
+    else
+        echo "  Cursor not installed"
+    fi
 }
 
 remove_terminal() {
@@ -209,6 +209,7 @@ MODULE_NAMES=(
     "Codex"
     "OpenCode"
     "Claude"
+    "Cursor"
     "Terminal"
     "Google Cloud"
     "SSH & Security"
@@ -222,7 +223,8 @@ MODULE_DESCRIPTIONS=(
     "Amp + config"
     "Codex + config, skills, agents"
     "OpenCode + config"
-    "Claude Code, Cursor, Claude Desktop + configs"
+    "Claude Code, Claude Desktop + configs"
+    "Cursor IDE"
     "Ghostty + config"
     "GWS CLI, gcloud + credentials"
     "SSH config, 1Password socket"
@@ -243,9 +245,10 @@ run_module() {
         5) remove_codex ;;
         6) remove_opencode ;;
         7) remove_claude ;;
-        8) remove_terminal ;;
-        9) remove_google_cloud ;;
-        10) remove_ssh ;;
+        8) remove_cursor ;;
+        9) remove_terminal ;;
+        10) remove_google_cloud ;;
+        11) remove_ssh ;;
     esac
 }
 
@@ -328,7 +331,7 @@ toggle_selection() {
             local start="${BASH_REMATCH[1]}"
             local end="${BASH_REMATCH[2]}"
             for num in $(seq "$start" "$end"); do
-                if [[ "$num" -ge 1 && "$num" -le 11 ]]; then
+                if [[ "$num" -ge 1 && "$num" -le 12 ]]; then
                     local idx=$((num - 1))
                     if [[ "${sel_ref[$idx]}" -eq 1 ]]; then
                         sel_ref[$idx]=0
@@ -338,7 +341,7 @@ toggle_selection() {
                 fi
             done
         elif [[ "$part" =~ ^[0-9]+$ ]]; then
-            if [[ "$part" -ge 1 && "$part" -le 11 ]]; then
+            if [[ "$part" -ge 1 && "$part" -le 12 ]]; then
                 local idx=$((part - 1))
                 if [[ "${sel_ref[$idx]}" -eq 1 ]]; then
                     sel_ref[$idx]=0
@@ -351,7 +354,7 @@ toggle_selection() {
 }
 
 fallback_menu() {
-    local selected=(0 0 0 0 0 0 0 0 0 0 0)
+    local selected=(0 0 0 0 0 0 0 0 0 0 0 0)
     local num_modules=${#MODULE_NAMES[@]}
 
     while true; do

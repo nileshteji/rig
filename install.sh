@@ -212,16 +212,16 @@ config_opencode() {
 }
 
 install_claude() {
-    # Claude Code
     if ! command -v claude &> /dev/null; then
-        echo "Installing Claude..."
+        echo "Installing Claude Code..."
         curl -fsSL https://claude.ai/install.sh | bash
-        echo "✓ Claude installed"
+        echo "✓ Claude Code installed"
     else
-        echo "✓ Claude already installed"
+        echo "✓ Claude Code already installed"
     fi
+}
 
-    # Cursor
+install_cursor() {
     if ! command -v cursor &> /dev/null; then
         echo "Installing Cursor..."
         curl -fsSL https://cursor.com/install | bash
@@ -391,6 +391,7 @@ MODULE_NAMES=(
     "Codex"
     "OpenCode"
     "Claude"
+    "Cursor"
     "Terminal"
     "Google Cloud"
     "SSH & Security"
@@ -404,7 +405,8 @@ MODULE_DESCRIPTIONS=(
     "Amp + config"
     "Codex + config, skills, agents"
     "OpenCode + config"
-    "Claude Code, Cursor, Claude Desktop + configs"
+    "Claude Code, Claude Desktop + configs"
+    "Cursor IDE"
     "Ghostty + config"
     "GWS CLI, gcloud + credentials"
     "SSH config, 1Password socket"
@@ -425,9 +427,10 @@ run_module() {
         5) install_codex; config_codex ;;
         6) install_opencode; config_opencode ;;
         7) install_claude; config_claude ;;
-        8) install_terminal; config_terminal ;;
-        9) install_google_cloud; config_google_cloud ;;
-        10) config_ssh ;;
+        8) install_cursor ;;
+        9) install_terminal; config_terminal ;;
+        10) install_google_cloud; config_google_cloud ;;
+        11) config_ssh ;;
     esac
 }
 
@@ -449,7 +452,7 @@ gum_menu() {
     echo ""
 
     local chosen
-    chosen=$(printf '%s\n' "${options[@]}" | gum choose --no-limit --selected="${options[0]}","${options[1]}","${options[2]}","${options[3]}","${options[4]}","${options[5]}","${options[6]}","${options[7]}","${options[8]}","${options[9]}","${options[10]}" --cursor-prefix="[ ] " --selected-prefix="[x] " --unselected-prefix="[ ] " --header="") || { echo "Aborted."; return 1; }
+    chosen=$(printf '%s\n' "${options[@]}" | gum choose --no-limit --selected="${options[0]}","${options[1]}","${options[2]}","${options[3]}","${options[4]}","${options[5]}","${options[6]}","${options[7]}","${options[8]}","${options[9]}","${options[10]}","${options[11]}" --cursor-prefix="[ ] " --selected-prefix="[x] " --unselected-prefix="[ ] " --header="") || { echo "Aborted."; return 1; }
 
     [[ -z "$chosen" ]] && { echo "No modules selected. Aborted."; return 1; }
 
@@ -462,10 +465,10 @@ gum_menu() {
     for i in $(seq 0 $((num_modules - 1))); do
         if echo "$chosen" | grep -qF "${MODULE_NAMES[$i]}"; then
             run_module "$i"
-            if [[ "$i" -ge 4 && "$i" -le 7 ]]; then
+            if [[ "$i" -ge 4 && "$i" -le 8 ]]; then
                 any_ai=1
             fi
-            if [[ "$i" -eq 9 ]]; then
+            if [[ "$i" -eq 10 ]]; then
                 has_gcloud=1
             fi
         fi
@@ -521,7 +524,7 @@ toggle_selection() {
             local start="${BASH_REMATCH[1]}"
             local end="${BASH_REMATCH[2]}"
             for num in $(seq "$start" "$end"); do
-                if [[ "$num" -ge 1 && "$num" -le 11 ]]; then
+                if [[ "$num" -ge 1 && "$num" -le 12 ]]; then
                     local idx=$((num - 1))
                     if [[ "${sel_ref[$idx]}" -eq 1 ]]; then
                         sel_ref[$idx]=0
@@ -531,7 +534,7 @@ toggle_selection() {
                 fi
             done
         elif [[ "$part" =~ ^[0-9]+$ ]]; then
-            if [[ "$part" -ge 1 && "$part" -le 11 ]]; then
+            if [[ "$part" -ge 1 && "$part" -le 12 ]]; then
                 local idx=$((part - 1))
                 if [[ "${sel_ref[$idx]}" -eq 1 ]]; then
                     sel_ref[$idx]=0
@@ -544,7 +547,7 @@ toggle_selection() {
 }
 
 fallback_menu() {
-    local selected=(1 1 1 1 1 1 1 1 1 1 1)
+    local selected=(1 1 1 1 1 1 1 1 1 1 1 1)
     local num_modules=${#MODULE_NAMES[@]}
 
     while true; do
@@ -574,14 +577,14 @@ fallback_menu() {
                     fi
                 done
 
-                if [[ "${selected[4]}" -eq 1 || "${selected[5]}" -eq 1 || "${selected[6]}" -eq 1 || "${selected[7]}" -eq 1 ]]; then
+                if [[ "${selected[4]}" -eq 1 || "${selected[5]}" -eq 1 || "${selected[6]}" -eq 1 || "${selected[7]}" -eq 1 || "${selected[8]}" -eq 1 ]]; then
                     apply_env_keys
                 fi
 
                 echo ""
                 echo "Next steps:"
                 echo "  1. Run 'source ~/.zshrc'"
-                if [[ "${selected[9]}" -eq 1 ]]; then
+                if [[ "${selected[10]}" -eq 1 ]]; then
                     echo "  2. If credentials were not copied, run 'gcloud auth login'"
                     echo "  3. Then run 'gws auth setup' and 'gws auth login'"
                 fi
