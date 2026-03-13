@@ -1,1 +1,5 @@
 gws/credentials.json
+.env
+.env.*
+*.credentials.json
+zsh/.zshrc.local

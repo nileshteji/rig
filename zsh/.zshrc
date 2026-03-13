@@ -27,29 +27,10 @@ alias gcl="git clone"
 alias gsta="git stash"
 alias gstp="git stash pop"
 alias gstl="git stash list"
-alias staging="ssh 10.0.3.214 -l ubuntu"
-alias jarvis="ssh 10.0.3.63 -l ubuntu"+
-alias ultron="ssh 10.0.3.96 -l ubuntu"
-alias popeye="ssh 10.0.3.120 -l ubuntu"
-alias asgard="ssh 10.0.3.91 -l ubuntu"
-alias arya="ssh 10.0.3.129 -l ubuntu"
-alias thanos="ssh 10.0.3.49 -l ubuntu"
-alias spartan="ssh 10.0.3.35 -l ubuntu"
-alias mario="ssh 10.0.3.89 -l ubuntu"
-alias robin="ssh 10.0.3.104 -l ubuntu"
-alias thor="ssh 10.0.3.211 -l ubuntu"
-alias nginx_server="ssh 10.0.1.120 -l ubuntu"
-alias prod="ssh 20.0.2.196 -l ubuntu"
-alias white="ssh 10.0.3.143 -l ubuntu"
-alias stagingd="PGPASSWORD="RvSr00axOg"  psql -h 10.0.3.144 -p 5432 -U postgres"
-alias database="PGPASSWORD='(leap_staging)' psql -h 10.0.3.163 -p 5433 -U postgres"
-export LANG=en_US.UTF-8
 export LANG=en_US.UTF-8
 export LC_ALL=en_US.UTF-8
 export CHROME_EXECUTABLE="/Applications/Dia.app/Contents/MacOS/Dia"
 export PATH="$HOME/.local/bin:$PATH"
-export PATH="$HOME/.local/bin:$PATH"
-export KAMKANAM_GEMINI_API_KEY="AIzaSyDnKiLbKouK3OOE-vSQEkwjM4UgUSBOepY"
 export PATH="$PATH:/Users/nileshteji/Library/Android/sdk/emulator"
 export PATH="/Users/nileshteji/.amp/bin:$PATH"
 export PATH="/opt/homebrew/opt/openjdk@17/bin:$PATH"
@@ -80,3 +61,9 @@ for gcloud_sdk_root in "/opt/homebrew/share/google-cloud-sdk" "/usr/local/share/
         break
     fi
 done
+
+# Load machine-specific secrets (zsh/.zshrc.local in dotfiles)
+DOTFILES_ZSH_DIR="$(dirname "$(readlink -f "${(%):-%x}")" 2>/dev/null)"
+if [[ -n "$DOTFILES_ZSH_DIR" && -f "$DOTFILES_ZSH_DIR/.zshrc.local" ]]; then
+    source "$DOTFILES_ZSH_DIR/.zshrc.local"
+fi

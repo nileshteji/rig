@@ -18,7 +18,7 @@ multi_agent = true
 url = "https://mcp.context7.com/mcp"
 
 [mcp_servers.context7.http_headers]
-CONTEXT7_API_KEY = "ctx7sk-1d2887fd-f9dc-4f3f-a6fa-522f3bc38af9"
+CONTEXT7_API_KEY = ""
 
 [mcp_servers.playwright]
 command = "npx"
@@ -44,6 +44,21 @@ url = "https://mcp.figma.com/mcp"
 
 [mcp_servers.notion]
 url = "https://mcp.notion.com/mcp"
+
+[agents.prism-oracle]
+description = "Audit a Figma UI against the design system, enumerate the design-system components/tokens that should be used, and flag compliance issues."
+config_file = "agents/design-system-auditor.toml"
+nickname_candidates = ["prism-oracle", "token-seer"]
+
+[agents.pattern-weaver]
+description = "Review classes and logic to determine whether the chosen software design pattern is correct, justified, or overengineered."
+config_file = "agents/pattern-checker.toml"
+nickname_candidates = ["pattern-weaver", "logic-weaver"]
+
+[agents.lorekeeper]
+description = "Update context.md or CONTEXT.md files for staged and unstaged changes by listing the changed files and clarifying each file's responsibility."
+config_file = "agents/lorekeeper.toml"
+nickname_candidates = ["lorekeeper", "context-scribe"]
 
 [projects."/Users/nileshteji/Developer/nileshteji.dev"]
 trust_level = "trusted"
