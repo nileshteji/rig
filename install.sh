@@ -25,6 +25,31 @@ backup_dir() {
     fi
 }
 
+ensure_symlink() {
+    local source_path="$1"
+    local target_path="$2"
+    local label="$3"
+
+    if [[ -L "$target_path" ]]; then
+        local current_target
+        current_target="$(readlink "$target_path")"
+        if [[ "$current_target" == "$source_path" ]]; then
+            echo "✓ $label already symlinked to $target_path"
+            return
+        fi
+        rm -f "$target_path"
+    elif [[ -d "$target_path" ]]; then
+        backup_dir "$target_path"
+        rm -rf "$target_path"
+    elif [[ -f "$target_path" ]]; then
+        backup_file "$target_path"
+        rm -f "$target_path"
+    fi
+
+    ln -s "$source_path" "$target_path"
+    echo "✓ $label symlinked to $target_path"
+}
+
 # --- Module install functions ---
 
 install_homebrew() {
@@ -141,24 +166,9 @@ config_codex() {
     echo "Setting up Codex config..."
     if [[ -f "$DOTFILES_DIR/codex/config.toml" ]]; then
         mkdir -p "$HOME/.codex"
-        if [[ -f "$HOME/.codex/config.toml" ]]; then
-            backup_file "$HOME/.codex/config.toml"
-        fi
-        if [[ -d "$HOME/.codex/skills" ]]; then
-            backup_dir "$HOME/.codex/skills"
-        fi
-        if [[ -d "$HOME/.codex/agents" && ! -L "$HOME/.codex/agents" ]]; then
-            backup_dir "$HOME/.codex/agents"
-        elif [[ -f "$HOME/.codex/agents" && ! -L "$HOME/.codex/agents" ]]; then
-            backup_file "$HOME/.codex/agents"
-        fi
-        rm -f "$HOME/.codex/config.toml"
-        ln -s "$DOTFILES_DIR/codex/config.toml" "$HOME/.codex/config.toml"
-        rm -rf "$HOME/.codex/skills"
-        ln -s "$DOTFILES_DIR/codex/skills" "$HOME/.codex/skills"
-        rm -rf "$HOME/.codex/agents"
-        ln -s "$DOTFILES_DIR/codex/agents" "$HOME/.codex/agents"
-        echo "✓ Codex config.toml, skills, and agents symlinked to ~/.codex"
+        ensure_symlink "$DOTFILES_DIR/codex/config.toml" "$HOME/.codex/config.toml" "Codex config.toml"
+        ensure_symlink "$DOTFILES_DIR/codex/skills" "$HOME/.codex/skills" "Codex skills"
+        ensure_symlink "$DOTFILES_DIR/codex/agents" "$HOME/.codex/agents" "Codex agents"
     fi
 }
 
