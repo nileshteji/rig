@@ -448,8 +448,6 @@ gum_menu() {
     echo "Setting up dotfiles from: $DOTFILES_DIR"
     echo ""
 
-    install_homebrew
-
     local any_ai=0
     local has_gcloud=0
     for i in $(seq 0 $((num_modules - 1))); do
@@ -561,8 +559,6 @@ fallback_menu() {
                 echo "Setting up dotfiles from: $DOTFILES_DIR"
                 echo ""
 
-                install_homebrew
-
                 for i in $(seq 0 $((num_modules - 1))); do
                     if [[ "${selected[$i]}" -eq 1 ]]; then
                         run_module "$i"
@@ -604,7 +600,8 @@ interactive_menu() {
     if command -v gum &> /dev/null; then
         gum_menu
     else
-        echo "Tip: Install 'gum' (brew install gum) for spacebar + arrow key selection."
+        echo "Warning: 'gum' is unavailable after Homebrew bootstrap."
+        echo "Falling back to the basic menu."
         echo ""
         fallback_menu
     fi
@@ -632,5 +629,6 @@ if [[ "$1" == "--all" ]]; then
     echo ""
     echo "✓ All dotfiles installed successfully!"
 else
+    install_homebrew
     interactive_menu
 fi
