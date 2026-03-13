@@ -235,24 +235,36 @@ config_claude() {
     # Claude Code config
     echo "Setting up Claude Code config..."
     mkdir -p ~/.claude
-    backup_file "$HOME/.claude/settings.json"
-    rm -f ~/.claude/settings.json
-    ln -s "$DOTFILES_DIR/claude/settings.json" ~/.claude/settings.json
-    echo "✓ Claude Code config symlinked to ~/.claude/settings.json"
+    ensure_symlink "$DOTFILES_DIR/claude/settings.json" "$HOME/.claude/settings.json" "Claude Code settings.json"
+    ensure_symlink "$DOTFILES_DIR/claude/statusline-command.sh" "$HOME/.claude/statusline-command.sh" "Claude Code statusline script"
 
-    # Claude Code statusline script
-    backup_file "$HOME/.claude/statusline-command.sh"
-    rm -f ~/.claude/statusline-command.sh
-    ln -s "$DOTFILES_DIR/claude/statusline-command.sh" ~/.claude/statusline-command.sh
-    echo "✓ Claude Code statusline script symlinked to ~/.claude/statusline-command.sh"
+    # Claude Code skills (symlink individual skills from repo)
+    if [[ -d "$DOTFILES_DIR/claude/skills" ]]; then
+        mkdir -p "$HOME/.claude/skills"
+        for skill_dir in "$DOTFILES_DIR/claude/skills"/*/; do
+            if [[ -d "$skill_dir" ]]; then
+                local skill_name
+                skill_name="$(basename "$skill_dir")"
+                ensure_symlink "$skill_dir" "$HOME/.claude/skills/$skill_name" "Claude Code skill: $skill_name"
+            fi
+        done
+    fi
+
+    # gstack skills (cloned and built separately)
+    if [[ -d "$HOME/.claude/skills/gstack" ]]; then
+        echo "✓ gstack already installed"
+    else
+        echo "Installing gstack skills..."
+        mkdir -p "$HOME/.claude/skills"
+        git clone https://github.com/garrytan/gstack.git "$HOME/.claude/skills/gstack"
+        (cd "$HOME/.claude/skills/gstack" && ./setup)
+        echo "✓ gstack skills installed"
+    fi
 
     # Claude Code agents
-    if [[ -d "$HOME/.claude/agents" && ! -L "$HOME/.claude/agents" ]]; then
-        backup_dir "$HOME/.claude/agents"
+    if [[ -d "$DOTFILES_DIR/claude/agents" ]]; then
+        ensure_symlink "$DOTFILES_DIR/claude/agents" "$HOME/.claude/agents" "Claude Code agents"
     fi
-    rm -rf ~/.claude/agents
-    ln -s "$DOTFILES_DIR/claude/agents" ~/.claude/agents
-    echo "✓ Claude Code agents symlinked to ~/.claude/agents"
 
     # Claude Desktop config
     echo "Setting up Claude Desktop config..."
