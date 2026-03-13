@@ -61,6 +61,15 @@ install_homebrew() {
         echo "✓ Homebrew already installed"
     fi
 
+    # Install Node.js (required for Claude Code CLI and npx-based MCPs)
+    if ! command -v node &> /dev/null; then
+        echo "Installing Node.js..."
+        brew install node
+        echo "✓ Node.js installed"
+    else
+        echo "✓ Node.js already installed"
+    fi
+
     # Install gum for interactive menu
     if ! command -v gum &> /dev/null; then
         echo "Installing gum (interactive menu)..."
