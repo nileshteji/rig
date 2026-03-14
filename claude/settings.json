@@ -1,56 +1,10 @@
 {
   "model": "opus[1m]",
-  "statusLine": {
-    "type": "command",
-    "command": "zsh /Users/nileshteji/.claude/statusline-command.sh"
-  },
   "enabledPlugins": {
     "code-simplifier@claude-plugins-official": true,
     "frontend-design@claude-plugins-official": true
   },
   "effortLevel": "medium",
-  "mcpServers": {
-    "task-master-ai": {
-      "type": "stdio",
-      "command": "npx",
-      "args": [
-        "-y",
-        "task-master-ai"
-      ],
-      "env": {
-        "TASK_MASTER_TOOLS": "all",
-        "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1"
-      }
-    },
-    "context7": {
-      "type": "http",
-      "url": "https://mcp.context7.com/mcp",
-      "headers": {
-        "CONTEXT7_API_KEY": ""
-      }
-    },
-    "playwright": {
-      "type": "stdio",
-      "command": "npx",
-      "args": [
-        "-y",
-        "@playwright/mcp@latest"
-      ],
-      "env": {}
-    },
-    "openaiDeveloperDocs": {
-      "type": "http",
-      "url": "https://developers.openai.com/mcp"
-    },
-    "figma": {
-      "type": "http",
-      "url": "https://mcp.figma.com/mcp"
-    },
-    "notion": {
-      "type": "http",
-      "url": "https://mcp.notion.com/mcp"
-    }
-  },
   "theme": "dark",
   "voiceEnabled": true
 }

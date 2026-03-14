@@ -211,6 +211,23 @@ config_opencode() {
     echo "✓ OpenCode config symlinked to ~/.config/.opencode"
 }
 
+install_bun() {
+    if ! command -v bun &> /dev/null; then
+        echo "Installing Bun..."
+        curl -fsSL https://bun.sh/install | bash
+        # Source zshrc to pick up bun PATH (in case shell module wasn't selected)
+        if [[ -f "$HOME/.zshrc" ]]; then
+            source "$HOME/.zshrc"
+        elif [[ -f "$HOME/.bun/bin/bun" ]]; then
+            export BUN_INSTALL="$HOME/.bun"
+            export PATH="$BUN_INSTALL/bin:$PATH"
+        fi
+        echo "✓ Bun installed"
+    else
+        echo "✓ Bun already installed"
+    fi
+}
+
 install_claude() {
     if ! command -v claude &> /dev/null; then
         echo "Installing Claude Code..."
@@ -252,18 +269,39 @@ config_claude() {
 
     # gstack skills (cloned and built separately)
     if [[ -d "$HOME/.claude/skills/gstack" ]]; then
-        echo "✓ gstack already installed"
+        echo "✓ gstack already cloned, updating..."
+        (cd "$HOME/.claude/skills/gstack" && git pull --ff-only 2>/dev/null || true)
     else
         echo "Installing gstack skills..."
         mkdir -p "$HOME/.claude/skills"
         git clone https://github.com/garrytan/gstack.git "$HOME/.claude/skills/gstack"
-        (cd "$HOME/.claude/skills/gstack" && ./setup)
-        echo "✓ gstack skills installed"
     fi
+    echo "Running gstack setup..."
+    (cd "$HOME/.claude/skills/gstack" && ./setup)
+    echo "✓ gstack skills installed"
 
     # Claude Code agents
     if [[ -d "$DOTFILES_DIR/claude/agents" ]]; then
         ensure_symlink "$DOTFILES_DIR/claude/agents" "$HOME/.claude/agents" "Claude Code agents"
+    fi
+
+    # Claude Code MCP servers
+    echo "Setting up Claude Code MCP servers..."
+    if command -v claude &> /dev/null; then
+        claude mcp add --transport http context7 https://mcp.context7.com/mcp 2>/dev/null || true
+        echo "✓ MCP: context7"
+        claude mcp add --transport http openaiDeveloperDocs https://developers.openai.com/mcp 2>/dev/null || true
+        echo "✓ MCP: openaiDeveloperDocs"
+        claude mcp add --transport http figma https://mcp.figma.com/mcp 2>/dev/null || true
+        echo "✓ MCP: figma"
+        claude mcp add --transport http notion https://mcp.notion.com/mcp 2>/dev/null || true
+        echo "✓ MCP: notion"
+        claude mcp add playwright -- npx -y @playwright/mcp@latest 2>/dev/null || true
+        echo "✓ MCP: playwright"
+        claude mcp add -e TASK_MASTER_TOOLS=all -e CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1 task-master-ai -- npx -y task-master-ai 2>/dev/null || true
+        echo "✓ MCP: task-master-ai"
+    else
+        echo "  Claude Code CLI not found, skipping MCP setup"
     fi
 
     # Claude Desktop config
@@ -385,7 +423,7 @@ apply_env_keys() {
     ctx7_key=$(grep -E "^CONTEXT7_API_KEY=" "$env_file" | cut -d'=' -f2- | tr -d '"' | tr -d "'")
     if [[ -n "$ctx7_key" ]]; then
         sed -i '' "s|\"CONTEXT7_API_KEY\": \"\"|\"CONTEXT7_API_KEY\": \"$ctx7_key\"|g" "$DOTFILES_DIR/amp/settings.json"
-        sed -i '' "s|\"CONTEXT7_API_KEY\": \"\"|\"CONTEXT7_API_KEY\": \"$ctx7_key\"|g" "$DOTFILES_DIR/claude/settings.json"
+        # Claude Code MCPs are registered via `claude mcp add`, not settings.json
         sed -i '' "s|\"CONTEXT7_API_KEY\": \"\"|\"CONTEXT7_API_KEY\": \"$ctx7_key\"|g" "$DOTFILES_DIR/opencode/opencode.json"
         sed -i '' "s|CONTEXT7_API_KEY = \"\"|CONTEXT7_API_KEY = \"$ctx7_key\"|g" "$DOTFILES_DIR/codex/config.toml"
         echo "✓ Context7 API key set in config files"
@@ -438,7 +476,7 @@ run_module() {
         4) install_amp; config_amp ;;
         5) install_codex; config_codex ;;
         6) install_opencode; config_opencode ;;
-        7) install_claude; config_claude ;;
+        7) install_bun; install_claude; config_claude ;;
         8) install_cursor ;;
         9) install_terminal; config_terminal ;;
         10) install_google_cloud; config_google_cloud ;;

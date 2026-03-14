@@ -37,6 +37,10 @@ export PATH="/opt/homebrew/opt/openjdk@17/bin:$PATH"
 export PATH="/opt/homebrew/opt/postgresql@15/bin:$PATH"
 export SSH_AUTH_SOCK="$HOME/.1password/agent.sock"
 
+# bun
+export BUN_INSTALL="$HOME/.bun"
+export PATH="$BUN_INSTALL/bin:$PATH"
+
 # opencode
 export PATH=/Users/nileshteji/.opencode/bin:$PATH
 export PATH="/opt/homebrew/opt/openjdk@17/bin:$PATH"
@@ -67,3 +71,6 @@ DOTFILES_ZSH_DIR="$(dirname "$(readlink -f "${(%):-%x}")" 2>/dev/null)"
 if [[ -n "$DOTFILES_ZSH_DIR" && -f "$DOTFILES_ZSH_DIR/.zshrc.local" ]]; then
     source "$DOTFILES_ZSH_DIR/.zshrc.local"
 fi
+
+# bun completions
+[ -s "/Users/nilesh/.bun/_bun" ] && source "/Users/nilesh/.bun/_bun"
