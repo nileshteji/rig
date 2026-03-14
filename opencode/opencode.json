@@ -34,6 +34,10 @@
   "notion": {
     "url": "https://mcp.notion.com/mcp",
     "type": "remote"
+  },
+  "chrome-devtools": {
+    "type": "local",
+    "command": ["npx", "-y", "chrome-devtools-mcp@latest"]
   }
 }
 }

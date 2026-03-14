@@ -179,6 +179,7 @@ config_codex() {
         ensure_symlink "$DOTFILES_DIR/codex/skills" "$HOME/.codex/skills" "Codex skills"
         ensure_symlink "$DOTFILES_DIR/codex/agents" "$HOME/.codex/agents" "Codex agents"
     fi
+
 }
 
 install_opencode() {
@@ -298,6 +299,8 @@ config_claude() {
         echo "✓ MCP: notion"
         claude mcp add playwright -- npx -y @playwright/mcp@latest 2>/dev/null || true
         echo "✓ MCP: playwright"
+        claude mcp add chrome-devtools -- npx -y chrome-devtools-mcp@latest 2>/dev/null || true
+        echo "✓ MCP: chrome-devtools"
         claude mcp add -e TASK_MASTER_TOOLS=all -e CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1 task-master-ai -- npx -y task-master-ai 2>/dev/null || true
         echo "✓ MCP: task-master-ai"
     else
@@ -385,6 +388,15 @@ config_google_cloud() {
     fi
 }
 
+install_agentation() {
+    echo "Setting up Agentation..."
+    if [[ -f "$DOTFILES_DIR/agentation/install.sh" ]]; then
+        bash "$DOTFILES_DIR/agentation/install.sh" all
+    else
+        echo "✗ agentation/install.sh not found"
+    fi
+}
+
 config_ssh() {
     echo "Setting up ssh config..."
     mkdir -p ~/.ssh
@@ -444,6 +456,7 @@ MODULE_NAMES=(
     "Cursor"
     "Terminal"
     "Google Cloud"
+    "Agentation"
     "SSH & Security"
 )
 
@@ -459,6 +472,7 @@ MODULE_DESCRIPTIONS=(
     "Cursor IDE"
     "Ghostty + config"
     "GWS CLI, gcloud + credentials"
+    "Agentation MCP + skills for AI tools"
     "SSH config, 1Password socket"
 )
 
@@ -480,7 +494,8 @@ run_module() {
         8) install_cursor ;;
         9) install_terminal; config_terminal ;;
         10) install_google_cloud; config_google_cloud ;;
-        11) config_ssh ;;
+        11) install_agentation ;;
+        12) config_ssh ;;
     esac
 }
 
@@ -502,7 +517,7 @@ gum_menu() {
     echo ""
 
     local chosen
-    chosen=$(printf '%s\n' "${options[@]}" | gum choose --no-limit --selected="${options[0]}","${options[1]}","${options[2]}","${options[3]}","${options[4]}","${options[5]}","${options[6]}","${options[7]}","${options[8]}","${options[9]}","${options[10]}","${options[11]}" --cursor-prefix="[ ] " --selected-prefix="[x] " --unselected-prefix="[ ] " --header="") || { echo "Aborted."; return 1; }
+    chosen=$(printf '%s\n' "${options[@]}" | gum choose --no-limit --selected="${options[0]}","${options[1]}","${options[2]}","${options[3]}","${options[4]}","${options[5]}","${options[6]}","${options[7]}","${options[8]}","${options[9]}","${options[10]}","${options[11]}","${options[12]}" --cursor-prefix="[ ] " --selected-prefix="[x] " --unselected-prefix="[ ] " --header="") || { echo "Aborted."; return 1; }
 
     [[ -z "$chosen" ]] && { echo "No modules selected. Aborted."; return 1; }
 
@@ -515,7 +530,7 @@ gum_menu() {
     for i in $(seq 0 $((num_modules - 1))); do
         if echo "$chosen" | grep -qF "${MODULE_NAMES[$i]}"; then
             run_module "$i"
-            if [[ "$i" -ge 4 && "$i" -le 8 ]]; then
+            if [[ "$i" -ge 4 && "$i" -le 8 ]] || [[ "$i" -eq 11 ]]; then
                 any_ai=1
             fi
             if [[ "$i" -eq 10 ]]; then
@@ -574,7 +589,7 @@ toggle_selection() {
             local start="${BASH_REMATCH[1]}"
             local end="${BASH_REMATCH[2]}"
             for num in $(seq "$start" "$end"); do
-                if [[ "$num" -ge 1 && "$num" -le 12 ]]; then
+                if [[ "$num" -ge 1 && "$num" -le 13 ]]; then
                     local idx=$((num - 1))
                     if [[ "${sel_ref[$idx]}" -eq 1 ]]; then
                         sel_ref[$idx]=0
@@ -584,7 +599,7 @@ toggle_selection() {
                 fi
             done
         elif [[ "$part" =~ ^[0-9]+$ ]]; then
-            if [[ "$part" -ge 1 && "$part" -le 12 ]]; then
+            if [[ "$part" -ge 1 && "$part" -le 13 ]]; then
                 local idx=$((part - 1))
                 if [[ "${sel_ref[$idx]}" -eq 1 ]]; then
                     sel_ref[$idx]=0
@@ -597,7 +612,7 @@ toggle_selection() {
 }
 
 fallback_menu() {
-    local selected=(1 1 1 1 1 1 1 1 1 1 1 1)
+    local selected=(1 1 1 1 1 1 1 1 1 1 1 1 1)
     local num_modules=${#MODULE_NAMES[@]}
 
     while true; do
@@ -627,7 +642,7 @@ fallback_menu() {
                     fi
                 done
 
-                if [[ "${selected[4]}" -eq 1 || "${selected[5]}" -eq 1 || "${selected[6]}" -eq 1 || "${selected[7]}" -eq 1 || "${selected[8]}" -eq 1 ]]; then
+                if [[ "${selected[4]}" -eq 1 || "${selected[5]}" -eq 1 || "${selected[6]}" -eq 1 || "${selected[7]}" -eq 1 || "${selected[8]}" -eq 1 || "${selected[11]}" -eq 1 ]]; then
                     apply_env_keys
                 fi
 

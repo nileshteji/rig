@@ -31,6 +31,7 @@ claude/settings.json → Claude Code config
   statusline-command.sh → Custom statusline script
   agents/              → User-level custom agents (symlinked to ~/.claude/agents)
   skills/              → User-level custom skills (symlinked to ~/.claude/skills)
+agentation/install.sh → Standalone Agentation setup (MCP + skills for Claude & Codex)
 ```
 
 ## Coding Style

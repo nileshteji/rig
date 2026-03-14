@@ -45,6 +45,10 @@ url = "https://mcp.figma.com/mcp"
 [mcp_servers.notion]
 url = "https://mcp.notion.com/mcp"
 
+[mcp_servers.chrome-devtools]
+command = "npx"
+args = ["-y", "chrome-devtools-mcp@latest"]
+
 [agents.prism-oracle]
 description = "Audit a Figma UI against the design system, enumerate the design-system components/tokens that should be used, and flag compliance issues."
 config_file = "agents/design-system-auditor.toml"
