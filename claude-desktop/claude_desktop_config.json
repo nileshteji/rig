@@ -19,7 +19,8 @@
     }
   },
   "preferences": {
-    "coworkScheduledTasksEnabled": false,
+    "coworkScheduledTasksEnabled": true,
+    "ccdScheduledTasksEnabled": true,
     "sidebarMode": "code",
     "coworkWebSearchEnabled": true
   }

@@ -256,14 +256,25 @@ config_claude() {
     ensure_symlink "$DOTFILES_DIR/claude/settings.json" "$HOME/.claude/settings.json" "Claude Code settings.json"
     ensure_symlink "$DOTFILES_DIR/claude/statusline-command.sh" "$HOME/.claude/statusline-command.sh" "Claude Code statusline script"
 
-    # Claude Code skills (symlink individual skills from repo)
+    # Claude Code skills (symlink repo-local and installed user skills)
+    mkdir -p "$HOME/.claude/skills"
+
     if [[ -d "$DOTFILES_DIR/claude/skills" ]]; then
-        mkdir -p "$HOME/.claude/skills"
         for skill_dir in "$DOTFILES_DIR/claude/skills"/*/; do
             if [[ -d "$skill_dir" ]]; then
                 local skill_name
                 skill_name="$(basename "$skill_dir")"
                 ensure_symlink "$skill_dir" "$HOME/.claude/skills/$skill_name" "Claude Code skill: $skill_name"
+            fi
+        done
+    fi
+
+    if [[ -d "$HOME/.agents/skills" ]]; then
+        for skill_dir in "$HOME/.agents/skills"/*/; do
+            if [[ -d "$skill_dir" ]]; then
+                local skill_name
+                skill_name="$(basename "$skill_dir")"
+                ensure_symlink "$skill_dir" "$HOME/.claude/skills/$skill_name" "Claude Code user skill: $skill_name"
             fi
         done
     fi

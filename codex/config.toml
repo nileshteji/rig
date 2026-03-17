@@ -18,7 +18,7 @@ multi_agent = true
 url = "https://mcp.context7.com/mcp"
 
 [mcp_servers.context7.http_headers]
-CONTEXT7_API_KEY = ""
+CONTEXT7_API_KEY = "ctx7sk-1d2887fd-f9dc-4f3f-a6fa-522f3bc38af9"
 
 [mcp_servers.playwright]
 command = "npx"
@@ -64,6 +64,26 @@ description = "Update context.md or CONTEXT.md files for staged and unstaged cha
 config_file = "agents/lorekeeper.toml"
 nickname_candidates = ["lorekeeper", "context-scribe"]
 
+[agents.scout]
+description = "Analyze a PRD, ticket, or feature request. Gather codebase context, find relevant files, check context.md coverage, and produce a structured requirements brief with open questions."
+config_file = "agents/scout.toml"
+nickname_candidates = ["scout", "recon"]
+
+[agents.architect]
+description = "Create a step-by-step implementation plan from a requirements brief. Define file-level changes, task ordering, verification steps, and architectural decisions."
+config_file = "agents/architect.toml"
+nickname_candidates = ["architect", "planner"]
+
+[agents.forger]
+description = "Implement an approved plan task by task. Write code, run verifications, and report status with any deviations from the plan."
+config_file = "agents/forger.toml"
+nickname_candidates = ["forger", "builder"]
+
+[agents.sentinel]
+description = "Validate implemented code against the plan and acceptance criteria. Run tests, check for regressions, and produce a pass/fail verdict."
+config_file = "agents/sentinel.toml"
+nickname_candidates = ["sentinel", "qa-guard"]
+
 [projects."/Users/nileshteji/Developer/nileshteji.dev"]
 trust_level = "trusted"
 
@@ -95,6 +115,9 @@ trust_level = "trusted"
 trust_level = "trusted"
 
 [projects."/Users/nilesh/dot-files"]
+trust_level = "trusted"
+
+[projects."/Users/nileshteji/Developer/nifty-50-analyzer"]
 trust_level = "trusted"
 
 [notice]

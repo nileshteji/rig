@@ -1,10 +1,13 @@
 {
+  "env": {
+    "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1"
+  },
   "model": "opus[1m]",
   "enabledPlugins": {
     "code-simplifier@claude-plugins-official": true,
     "frontend-design@claude-plugins-official": true
   },
   "effortLevel": "medium",
-  "theme": "dark",
-  "voiceEnabled": true
+  "voiceEnabled": true,
+  "theme": "dark"
 }
