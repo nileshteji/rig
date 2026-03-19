@@ -1,5 +1,5 @@
 model = "gpt-5.4"
-model_reasoning_effort = "medium"
+model_reasoning_effort = "high"
 model_context_window = 1000000
 model_auto_compact_token_limit = 900000
 personality = "pragmatic"
@@ -83,6 +83,11 @@ nickname_candidates = ["forger", "builder"]
 description = "Validate implemented code against the plan and acceptance criteria. Run tests, check for regressions, and produce a pass/fail verdict."
 config_file = "agents/sentinel.toml"
 nickname_candidates = ["sentinel", "qa-guard"]
+
+[agents.reviewer]
+description = "Review completed changes for bugs, regressions, plan drift, and maintainability risks after implementation and validation."
+config_file = "agents/reviewer.toml"
+nickname_candidates = ["reviewer", "merge-guard"]
 
 [projects."/Users/nileshteji/Developer/nileshteji.dev"]
 trust_level = "trusted"
