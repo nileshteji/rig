@@ -1,5 +1,7 @@
+.DS_Store
 gws/credentials.json
 .env
 .env.*
 *.credentials.json
+*.backup.*
 zsh/.zshrc.local

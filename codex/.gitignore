@@ -1,6 +1,0 @@
-*
-!config.toml
-!agents/
-!agents/**
-!skills/
-*.backup.*
