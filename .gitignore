@@ -5,3 +5,4 @@ gws/credentials.json
 *.credentials.json
 *.backup.*
 zsh/.zshrc.local
+.gstack/

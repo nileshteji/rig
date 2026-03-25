@@ -7,10 +7,10 @@ This repository is a small dotfiles bundle for macOS. Top-level `install.sh` orc
 - `ssh/config`: SSH client configuration with 1Password agent integration.
 - `ghostty/config`: Ghostty terminal configuration.
 - `tmux/.tmux.conf`: Tmux configuration with `C-a` prefix.
-- `amp/`, `codex/`, `claude/`, `opencode/`: AI tool configurations.
+- `amp/`, `codex/`, `claude/`, `opencode/`, `pi/`, `forge/`: AI tool configurations.
 
 ## Build, Test, and Development Commands
-- `./install.sh`: Installs Homebrew, Oh My Zsh, Neovim, Tmux, Amp, Codex, Claude, Cursor, and Ghostty, then symlinks or copies configs into `~/.config`, `~/.zshrc`, and `~/.ssh`. On macOS it writes Ghostty config under `~/Library/Application Support`.
+- `./install.sh`: Installs Homebrew, Oh My Zsh, Neovim, Tmux, Amp, Codex, Claude, Pi, Cursor, and Ghostty, then symlinks or copies configs into `~/.config`, `~/.zshrc`, `~/.ssh`, and `~/.pi/agent`. On macOS it writes Ghostty config under `~/Library/Application Support`.
 - `nvim +q`: Quick smoke test to ensure Neovim loads without errors.
 - `nvim --headless +'checkhealth' +qa`: Run Neovim health checks to verify plugins and LSP servers.
 - `nvim --headless +'Lazy! check' +qa`: Check for outdated plugins without interactive prompts.

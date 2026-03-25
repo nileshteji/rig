@@ -79,6 +79,14 @@ install_homebrew() {
 }
 
 install_shell() {
+    if ! command -v zsh &> /dev/null; then
+        echo "Installing zsh..."
+        brew install zsh
+        echo "✓ zsh installed"
+    else
+        echo "✓ zsh already installed"
+    fi
+
     if [[ ! -d "$HOME/.oh-my-zsh" ]]; then
         echo "Installing Oh My Zsh..."
         sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
@@ -86,13 +94,30 @@ install_shell() {
     else
         echo "✓ Oh My Zsh already installed"
     fi
+
+    local zsh_path
+    if [[ -x "/bin/zsh" ]]; then
+        zsh_path="/bin/zsh"
+    else
+        zsh_path="$(command -v zsh)"
+    fi
+
+    if [[ "$SHELL" == "$zsh_path" ]]; then
+        echo "✓ zsh already set as default shell"
+    elif grep -qx "$zsh_path" /etc/shells; then
+        echo "Setting zsh as default shell..."
+        chsh -s "$zsh_path"
+        echo "✓ zsh set as default shell"
+    else
+        echo "  zsh is installed at $zsh_path but is not listed in /etc/shells"
+        echo "  Run: sudo sh -c 'echo $zsh_path >> /etc/shells'"
+        echo "  Then re-run the installer to set it as your default shell."
+    fi
 }
 
 config_shell() {
     echo "Setting up zsh config..."
-    rm -f ~/.zshrc
-    ln -s "$DOTFILES_DIR/zsh/.zshrc" ~/.zshrc
-    echo "✓ zshrc symlinked to ~/.zshrc"
+    ensure_symlink "$DOTFILES_DIR/zsh/.zshrc" "$HOME/.zshrc" "zshrc"
 }
 
 install_neovim() {
@@ -236,6 +261,40 @@ install_claude() {
         echo "✓ Claude Code installed"
     else
         echo "✓ Claude Code already installed"
+    fi
+}
+
+install_pi() {
+    if ! command -v pi &> /dev/null; then
+        echo "Installing Pi..."
+        npm install -g @mariozechner/pi-coding-agent
+        echo "✓ Pi installed"
+    else
+        echo "✓ Pi already installed"
+    fi
+}
+
+config_pi() {
+    echo "Setting up Pi config..."
+    mkdir -p "$HOME/.pi/agent"
+
+    if [[ -f "$DOTFILES_DIR/pi/AGENTS.md" ]]; then
+        ensure_symlink "$DOTFILES_DIR/pi/AGENTS.md" "$HOME/.pi/agent/AGENTS.md" "Pi AGENTS.md"
+    fi
+
+    if [[ -d "$DOTFILES_DIR/pi/skills" ]]; then
+        ensure_symlink "$DOTFILES_DIR/pi/skills" "$HOME/.pi/agent/skills" "Pi skills"
+    fi
+
+    # Symlink pi skills into ~/.agents/skills so pi discovers them globally
+    if [[ -d "$DOTFILES_DIR/pi/skills" ]]; then
+        mkdir -p "$HOME/.agents/skills"
+        for skill_dir in "$DOTFILES_DIR/pi/skills"/*/; do
+            if [[ -d "$skill_dir" ]]; then
+                skill_name="$(basename "$skill_dir")"
+                ensure_symlink "$skill_dir" "$HOME/.agents/skills/$skill_name" "Pi global skill: $skill_name"
+            fi
+        done
     fi
 }
 
@@ -424,6 +483,92 @@ config_ssh() {
     echo "✓ 1Password agent.sock symlinked to ~/.1password/agent.sock"
 }
 
+install_forge() {
+    if ! command -v forge &> /dev/null; then
+        echo "Installing Forge..."
+        brew install forge
+        echo "✓ Forge installed"
+    else
+        echo "✓ Forge already installed"
+    fi
+}
+
+config_forge() {
+    echo "Setting up Forge config..."
+
+    # Forge skills (symlink each skill from dotfiles into ~/forge/skills/)
+    if [[ -d "$DOTFILES_DIR/forge/skills" ]]; then
+        mkdir -p "$HOME/forge/skills"
+        for skill_dir in "$DOTFILES_DIR/forge/skills"/*/; do
+            if [[ -d "$skill_dir" ]]; then
+                local skill_name
+                skill_name="$(basename "$skill_dir")"
+                ensure_symlink "$skill_dir" "$HOME/forge/skills/$skill_name" "Forge skill: $skill_name"
+            fi
+        done
+    fi
+
+    # gstack skills (cloned, browse binary built, skills linked with path rewriting)
+    local GSTACK_SRC="$HOME/.gstack/repo"
+    if [[ -d "$GSTACK_SRC" ]]; then
+        echo "✓ gstack already cloned, updating..."
+        (cd "$GSTACK_SRC" && git pull --ff-only 2>/dev/null || true)
+    else
+        echo "Cloning gstack..."
+        mkdir -p "$HOME/.gstack"
+        git clone https://github.com/garrytan/gstack.git "$GSTACK_SRC"
+    fi
+
+    # Build browse binary if bun is available
+    if command -v bun &> /dev/null; then
+        echo "Building gstack browse binary..."
+        (cd "$GSTACK_SRC" && bun install --frozen-lockfile 2>/dev/null && bun run build 2>/dev/null || true)
+    fi
+
+    # Link gstack skills into ~/forge/skills/ with path rewriting
+    local FORGE_GSTACK="$HOME/forge/skills/gstack"
+    rm -rf "$FORGE_GSTACK"
+    mkdir -p "$FORGE_GSTACK" "$FORGE_GSTACK/browse" "$FORGE_GSTACK/gstack-upgrade" "$FORGE_GSTACK/review"
+
+    # Symlink runtime assets
+    ln -snf "$GSTACK_SRC/bin" "$FORGE_GSTACK/bin"
+    ln -snf "$GSTACK_SRC/browse/dist" "$FORGE_GSTACK/browse/dist"
+    ln -snf "$GSTACK_SRC/browse/bin" "$FORGE_GSTACK/browse/bin"
+    [[ -f "$GSTACK_SRC/ETHOS.md" ]] && ln -snf "$GSTACK_SRC/ETHOS.md" "$FORGE_GSTACK/ETHOS.md"
+
+    # Rewrite root SKILL.md paths for Forge
+    if [[ -f "$GSTACK_SRC/SKILL.md" ]]; then
+        sed -e "s|~/.claude/skills/gstack|~/forge/skills/gstack|g" \
+            -e "s|\.claude/skills/gstack|forge/skills/gstack|g" \
+            -e "s|\.claude/skills|forge/skills|g" \
+            "$GSTACK_SRC/SKILL.md" > "$FORGE_GSTACK/SKILL.md"
+    fi
+
+    # Link individual gstack sub-skills
+    for skill_dir in "$GSTACK_SRC"/*/; do
+        if [[ -f "$skill_dir/SKILL.md" ]]; then
+            local gstack_skill_name
+            gstack_skill_name="$(basename "$skill_dir")"
+            [[ "$gstack_skill_name" == "node_modules" ]] && continue
+            [[ "$gstack_skill_name" == "test" ]] && continue
+            local target="$HOME/forge/skills/$gstack_skill_name"
+            if [[ -L "$target" ]] || [[ ! -e "$target" ]]; then
+                ln -snf "gstack/$gstack_skill_name" "$target"
+            fi
+        fi
+    done
+    echo "✓ gstack skills installed for Forge"
+
+    # Forge zsh integration
+    echo "Setting up Forge zsh integration..."
+    if command -v forge &> /dev/null; then
+        forge zsh setup
+        echo "✓ Forge zsh integration configured"
+    else
+        echo "  Forge CLI not found, skipping zsh setup"
+    fi
+}
+
 # --- API keys from .env file ---
 
 apply_env_keys() {
@@ -464,11 +609,13 @@ MODULE_NAMES=(
     "Codex"
     "OpenCode"
     "Claude"
+    "Pi"
     "Cursor"
     "Terminal"
     "Google Cloud"
     "Agentation"
     "SSH & Security"
+    "Forge"
 )
 
 MODULE_DESCRIPTIONS=(
@@ -480,11 +627,13 @@ MODULE_DESCRIPTIONS=(
     "Codex + config, skills, agents"
     "OpenCode + config"
     "Claude Code, Claude Desktop + configs"
+    "Pi + specialist skills"
     "Cursor IDE"
     "Ghostty + config"
     "GWS CLI, gcloud + credentials"
     "Agentation MCP + skills for AI tools"
     "SSH config, 1Password socket"
+    "Forge CLI + skills, gstack, zsh integration"
 )
 
 # --- Run a module by index (0-based) ---
@@ -502,11 +651,13 @@ run_module() {
         5) install_codex; config_codex ;;
         6) install_opencode; config_opencode ;;
         7) install_bun; install_claude; config_claude ;;
-        8) install_cursor ;;
-        9) install_terminal; config_terminal ;;
-        10) install_google_cloud; config_google_cloud ;;
-        11) install_agentation ;;
-        12) config_ssh ;;
+        8) install_pi; config_pi ;;
+        9) install_cursor ;;
+        10) install_terminal; config_terminal ;;
+        11) install_google_cloud; config_google_cloud ;;
+        12) install_agentation ;;
+        13) config_ssh ;;
+        14) install_forge; config_forge ;;
     esac
 }
 
@@ -528,7 +679,7 @@ gum_menu() {
     echo ""
 
     local chosen
-    chosen=$(printf '%s\n' "${options[@]}" | gum choose --no-limit --selected="${options[0]}","${options[1]}","${options[2]}","${options[3]}","${options[4]}","${options[5]}","${options[6]}","${options[7]}","${options[8]}","${options[9]}","${options[10]}","${options[11]}","${options[12]}" --cursor-prefix="[ ] " --selected-prefix="[x] " --unselected-prefix="[ ] " --header="") || { echo "Aborted."; return 1; }
+    chosen=$(printf '%s\n' "${options[@]}" | gum choose --no-limit --selected="${options[0]}","${options[1]}","${options[2]}","${options[3]}","${options[4]}","${options[5]}","${options[6]}","${options[7]}","${options[8]}","${options[9]}","${options[10]}","${options[11]}","${options[12]}","${options[13]}","${options[14]}" --cursor-prefix="[ ] " --selected-prefix="[x] " --unselected-prefix="[ ] " --header="") || { echo "Aborted."; return 1; }
 
     [[ -z "$chosen" ]] && { echo "No modules selected. Aborted."; return 1; }
 
@@ -541,10 +692,10 @@ gum_menu() {
     for i in $(seq 0 $((num_modules - 1))); do
         if echo "$chosen" | grep -qF "${MODULE_NAMES[$i]}"; then
             run_module "$i"
-            if [[ "$i" -ge 4 && "$i" -le 8 ]] || [[ "$i" -eq 11 ]]; then
+            if [[ "$i" -ge 4 && "$i" -le 8 ]] || [[ "$i" -eq 12 ]]; then
                 any_ai=1
             fi
-            if [[ "$i" -eq 10 ]]; then
+            if [[ "$i" -eq 11 ]]; then
                 has_gcloud=1
             fi
         fi
@@ -600,7 +751,7 @@ toggle_selection() {
             local start="${BASH_REMATCH[1]}"
             local end="${BASH_REMATCH[2]}"
             for num in $(seq "$start" "$end"); do
-                if [[ "$num" -ge 1 && "$num" -le 13 ]]; then
+                if [[ "$num" -ge 1 && "$num" -le 15 ]]; then
                     local idx=$((num - 1))
                     if [[ "${sel_ref[$idx]}" -eq 1 ]]; then
                         sel_ref[$idx]=0
@@ -610,7 +761,7 @@ toggle_selection() {
                 fi
             done
         elif [[ "$part" =~ ^[0-9]+$ ]]; then
-            if [[ "$part" -ge 1 && "$part" -le 13 ]]; then
+            if [[ "$part" -ge 1 && "$part" -le 15 ]]; then
                 local idx=$((part - 1))
                 if [[ "${sel_ref[$idx]}" -eq 1 ]]; then
                     sel_ref[$idx]=0
@@ -623,7 +774,7 @@ toggle_selection() {
 }
 
 fallback_menu() {
-    local selected=(1 1 1 1 1 1 1 1 1 1 1 1 1)
+    local selected=(1 1 1 1 1 1 1 1 1 1 1 1 1 1 1)
     local num_modules=${#MODULE_NAMES[@]}
 
     while true; do
@@ -653,14 +804,14 @@ fallback_menu() {
                     fi
                 done
 
-                if [[ "${selected[4]}" -eq 1 || "${selected[5]}" -eq 1 || "${selected[6]}" -eq 1 || "${selected[7]}" -eq 1 || "${selected[8]}" -eq 1 || "${selected[11]}" -eq 1 ]]; then
+                if [[ "${selected[4]}" -eq 1 || "${selected[5]}" -eq 1 || "${selected[6]}" -eq 1 || "${selected[7]}" -eq 1 || "${selected[8]}" -eq 1 || "${selected[12]}" -eq 1 ]]; then
                     apply_env_keys
                 fi
 
                 echo ""
                 echo "Next steps:"
                 echo "  1. Run 'source ~/.zshrc'"
-                if [[ "${selected[10]}" -eq 1 ]]; then
+                if [[ "${selected[11]}" -eq 1 ]]; then
                     echo "  2. If credentials were not copied, run 'gcloud auth login'"
                     echo "  3. Then run 'gws auth setup' and 'gws auth login'"
                 fi

@@ -43,9 +43,11 @@ The installer gives you a **interactive menu** powered by [gum](https://github.c
   [x]  6. Codex              (Codex + config, skills, agents)
   [x]  7. OpenCode           (OpenCode + config)
   [x]  8. Claude             (Claude Code, Cursor, Claude Desktop + configs)
-  [x]  9. Terminal            (Ghostty + config)
-  [x] 10. Google Cloud       (GWS CLI, gcloud + credentials)
-  [x] 11. SSH & Security     (SSH config, 1Password socket)
+  [x]  9. Pi                 (Pi + specialist skills)
+  [x] 10. Terminal           (Ghostty + config)
+  [x] 11. Google Cloud       (GWS CLI, gcloud + credentials)
+  [x] 12. Agentation         (Agentation MCP + skills for AI tools)
+  [x] 13. SSH & Security     (SSH config, 1Password socket)
 ```
 
 > **No gum?** No problem. Falls back to a number-based menu where you type `1,3,5` or `1-4` to toggle.
@@ -81,6 +83,7 @@ The installer gives you a **interactive menu** powered by [gum](https://github.c
 | **Codex** | Config, skills, agents |
 | **OpenCode** | Config + MCP servers |
 | **Claude** | Claude Code, Desktop, Cursor + agents, [gstack](https://github.com/garrytan/gstack.git) skills |
+| **Pi** | Pi CLI + specialist skills |
 | **Google Cloud** | GWS CLI + gcloud |
 | **SSH** | 1Password agent socket |
 
@@ -108,6 +111,7 @@ rig/
   opencode/           OpenCode config
   claude/             Claude Code settings, statusline, agents, skills
   claude-desktop/     Claude Desktop config
+  pi/                 Pi global AGENTS.md and specialist skills
   gws/                Google Workspace CLI setup
   iterm/              iTerm2 color preset (legacy)
   .env.example        Template for API keys

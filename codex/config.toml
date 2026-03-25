@@ -1,5 +1,5 @@
 model = "gpt-5.4"
-model_reasoning_effort = "high"
+model_reasoning_effort = "medium"
 model_context_window = 1000000
 model_auto_compact_token_limit = 900000
 personality = "pragmatic"
@@ -123,6 +123,15 @@ trust_level = "trusted"
 trust_level = "trusted"
 
 [projects."/Users/nileshteji/Developer/nifty-50-analyzer"]
+trust_level = "trusted"
+
+[projects."/Users/nileshteji/Developer/apex"]
+trust_level = "trusted"
+
+[projects."/Users/nileshteji/Developer/SkillManager"]
+trust_level = "trusted"
+
+[projects."/Users/nileshteji/.agents/skills/gstack"]
 trust_level = "trusted"
 
 [notice]
