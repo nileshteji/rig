@@ -249,6 +249,12 @@ config_codex() {
 
     # Link all skills from shared/skills
     link_all_skills "$HOME/.codex/skills" "Codex"
+
+    # Link codex-specific .system skills
+    ensure_symlink "$DOTFILES_DIR/codex/.system" "$HOME/.codex/skills/.system" "Codex .system skills"
+
+    # Link codex-specific assets
+    ensure_symlink "$DOTFILES_DIR/codex/implement-plan.zip" "$HOME/.codex/skills/implement-plan.zip" "Codex implement-plan.zip"
 }
 
 install_opencode() {
