@@ -14,7 +14,7 @@ echo "Initializing submodules..."
 (cd "$DOTFILES_DIR" && git submodule update --init --recursive)
 echo "✓ Submodules initialized"
 
-GSTACK_SRC="$DOTFILES_DIR/shared/gstack"
+GSTACK_SRC="$DOTFILES_DIR/skills/gstack"
 SKILLS_SRC="$DOTFILES_DIR/skills"
 
 # --- Utility functions ---

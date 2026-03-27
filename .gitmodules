@@ -1,6 +1,3 @@
 [submodule "skills"]
 	path = skills
 	url = git@github.com:nileshteji/skills.git
-[submodule "shared"]
-	path = shared
-	url = git@github.com:nileshteji/shared.git
