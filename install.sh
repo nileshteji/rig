@@ -15,6 +15,7 @@ echo "Initializing submodules..."
 echo "✓ Submodules initialized"
 
 GSTACK_SRC="$DOTFILES_DIR/shared/gstack"
+SKILLS_SRC="$DOTFILES_DIR/shared/skills"
 
 # --- Utility functions ---
 
@@ -56,6 +57,40 @@ ensure_symlink() {
 
     ln -s "$source_path" "$target_path"
     echo "✓ $label symlinked to $target_path"
+}
+
+link_all_skills() {
+    local target_dir="$1"
+    local label="$2"
+
+    mkdir -p "$target_dir"
+
+    # Link every skill directory from shared/skills into the target
+    for skill_dir in "$SKILLS_SRC"/*/; do
+        if [[ -d "$skill_dir" ]]; then
+            local skill_name
+            skill_name="$(basename "$skill_dir")"
+            ensure_symlink "$skill_dir" "$target_dir/$skill_name" "$label skill: $skill_name"
+        fi
+    done
+
+    # Also link hidden directories (e.g. .system for Codex)
+    for skill_dir in "$SKILLS_SRC"/.[!.]*/; do
+        if [[ -d "$skill_dir" ]]; then
+            local skill_name
+            skill_name="$(basename "$skill_dir")"
+            ensure_symlink "$skill_dir" "$target_dir/$skill_name" "$label skill: $skill_name"
+        fi
+    done
+
+    # Link non-directory skill assets (e.g. implement-plan.zip)
+    for skill_file in "$SKILLS_SRC"/*.zip; do
+        if [[ -f "$skill_file" ]]; then
+            local file_name
+            file_name="$(basename "$skill_file")"
+            ensure_symlink "$skill_file" "$target_dir/$file_name" "$label asset: $file_name"
+        fi
+    done
 }
 
 # --- Module install functions ---
@@ -209,10 +244,11 @@ config_codex() {
     if [[ -f "$DOTFILES_DIR/codex/config.toml" ]]; then
         mkdir -p "$HOME/.codex"
         ensure_symlink "$DOTFILES_DIR/codex/config.toml" "$HOME/.codex/config.toml" "Codex config.toml"
-        ensure_symlink "$DOTFILES_DIR/codex/skills" "$HOME/.codex/skills" "Codex skills"
         ensure_symlink "$DOTFILES_DIR/codex/agents" "$HOME/.codex/agents" "Codex agents"
     fi
 
+    # Link all skills from shared/skills
+    link_all_skills "$HOME/.codex/skills" "Codex"
 }
 
 install_opencode() {
@@ -290,20 +326,8 @@ config_pi() {
         ensure_symlink "$DOTFILES_DIR/pi/AGENTS.md" "$HOME/.pi/agent/AGENTS.md" "Pi AGENTS.md"
     fi
 
-    if [[ -d "$DOTFILES_DIR/pi/skills" ]]; then
-        ensure_symlink "$DOTFILES_DIR/pi/skills" "$HOME/.pi/agent/skills" "Pi skills"
-    fi
-
-    # Symlink pi skills into ~/.agents/skills so pi discovers them globally
-    if [[ -d "$DOTFILES_DIR/pi/skills" ]]; then
-        mkdir -p "$HOME/.agents/skills"
-        for skill_dir in "$DOTFILES_DIR/pi/skills"/*/; do
-            if [[ -d "$skill_dir" ]]; then
-                skill_name="$(basename "$skill_dir")"
-                ensure_symlink "$skill_dir" "$HOME/.agents/skills/$skill_name" "Pi global skill: $skill_name"
-            fi
-        done
-    fi
+    # Link all skills from shared/skills
+    link_all_skills "$HOME/.pi/agent/skills" "Pi"
 }
 
 install_cursor() {
@@ -323,32 +347,11 @@ config_claude() {
     ensure_symlink "$DOTFILES_DIR/claude/settings.json" "$HOME/.claude/settings.json" "Claude Code settings.json"
     ensure_symlink "$DOTFILES_DIR/claude/statusline-command.sh" "$HOME/.claude/statusline-command.sh" "Claude Code statusline script"
 
-    # Claude Code skills (symlink repo-local and installed user skills)
-    mkdir -p "$HOME/.claude/skills"
-
-    if [[ -d "$DOTFILES_DIR/claude/skills" ]]; then
-        for skill_dir in "$DOTFILES_DIR/claude/skills"/*/; do
-            if [[ -d "$skill_dir" ]]; then
-                local skill_name
-                skill_name="$(basename "$skill_dir")"
-                ensure_symlink "$skill_dir" "$HOME/.claude/skills/$skill_name" "Claude Code skill: $skill_name"
-            fi
-        done
-    fi
-
-    if [[ -d "$HOME/.agents/skills" ]]; then
-        for skill_dir in "$HOME/.agents/skills"/*/; do
-            if [[ -d "$skill_dir" ]]; then
-                local skill_name
-                skill_name="$(basename "$skill_dir")"
-                ensure_symlink "$skill_dir" "$HOME/.claude/skills/$skill_name" "Claude Code user skill: $skill_name"
-            fi
-        done
-    fi
+    # Link all skills from shared/skills
+    link_all_skills "$HOME/.claude/skills" "Claude Code"
 
     # gstack skills (from submodule at shared/gstack)
     echo "Installing gstack skills..."
-    mkdir -p "$HOME/.claude/skills"
     rm -rf "$HOME/.claude/skills/gstack"
     ln -s "$GSTACK_SRC" "$HOME/.claude/skills/gstack"
     echo "Running gstack setup..."
@@ -543,17 +546,8 @@ install_forge() {
 config_forge() {
     echo "Setting up Forge config..."
 
-    # Forge skills (symlink each skill from dotfiles into ~/forge/skills/)
-    if [[ -d "$DOTFILES_DIR/forge/skills" ]]; then
-        mkdir -p "$HOME/forge/skills"
-        for skill_dir in "$DOTFILES_DIR/forge/skills"/*/; do
-            if [[ -d "$skill_dir" ]]; then
-                local skill_name
-                skill_name="$(basename "$skill_dir")"
-                ensure_symlink "$skill_dir" "$HOME/forge/skills/$skill_name" "Forge skill: $skill_name"
-            fi
-        done
-    fi
+    # Link all skills from shared/skills
+    link_all_skills "$HOME/forge/skills" "Forge"
 
     # gstack skills (from submodule at shared/gstack, browse binary built, skills linked with path rewriting)
 
@@ -664,16 +658,16 @@ MODULE_DESCRIPTIONS=(
     "tmux + config"
     "lazygit"
     "Amp + config"
-    "Codex + config, skills, agents"
+    "Codex + config, agents, shared skills"
     "OpenCode + config"
-    "Claude Code, Claude Desktop + configs"
-    "Pi + specialist skills"
+    "Claude Code, Claude Desktop + configs, shared skills"
+    "Pi + shared skills"
     "Cursor IDE"
     "Ghostty + config"
     "GWS CLI, gcloud + credentials"
     "Agentation MCP + skills for AI tools"
     "SSH config, 1Password socket"
-    "Forge CLI + skills, gstack, zsh integration"
+    "Forge CLI + shared skills, gstack, zsh integration"
 )
 
 # --- Run a module by index (0-based) ---
