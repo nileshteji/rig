@@ -8,6 +8,14 @@ set -e
 
 DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
+# --- Initialize git submodules (skills repo + gstack) ---
+
+echo "Initializing submodules..."
+(cd "$DOTFILES_DIR" && git submodule update --init --recursive)
+echo "✓ Submodules initialized"
+
+GSTACK_SRC="$DOTFILES_DIR/shared/gstack"
+
 # --- Utility functions ---
 
 backup_file() {
@@ -338,17 +346,13 @@ config_claude() {
         done
     fi
 
-    # gstack skills (cloned and built separately)
-    if [[ -d "$HOME/.claude/skills/gstack" ]]; then
-        echo "✓ gstack already cloned, updating..."
-        (cd "$HOME/.claude/skills/gstack" && git pull --ff-only 2>/dev/null || true)
-    else
-        echo "Installing gstack skills..."
-        mkdir -p "$HOME/.claude/skills"
-        git clone https://github.com/garrytan/gstack.git "$HOME/.claude/skills/gstack"
-    fi
+    # gstack skills (from submodule at shared/gstack)
+    echo "Installing gstack skills..."
+    mkdir -p "$HOME/.claude/skills"
+    rm -rf "$HOME/.claude/skills/gstack"
+    ln -s "$GSTACK_SRC" "$HOME/.claude/skills/gstack"
     echo "Running gstack setup..."
-    (cd "$HOME/.claude/skills/gstack" && ./setup)
+    (cd "$GSTACK_SRC" && ./setup)
     echo "✓ gstack skills installed"
 
     # Claude Code agents
@@ -483,6 +487,49 @@ config_ssh() {
     echo "✓ 1Password agent.sock symlinked to ~/.1password/agent.sock"
 }
 
+install_vim() {
+    if ! command -v vim &> /dev/null; then
+        echo "Installing Vim..."
+        brew install vim
+        echo "✓ Vim installed"
+    else
+        echo "✓ Vim already installed"
+    fi
+}
+
+config_vim() {
+    echo "Setting up Vim config..."
+    mkdir -p ~/.vim/undodir
+    ensure_symlink "$DOTFILES_DIR/vim/.vimrc" "$HOME/.vimrc" "vimrc"
+
+    # Symlink theme and runtime files into ~/.vim
+    ensure_symlink "$DOTFILES_DIR/vim/colors" "$HOME/.vim/colors" "vim colors"
+    ensure_symlink "$DOTFILES_DIR/vim/after" "$HOME/.vim/after" "vim after"
+
+    # Merge autoload: vim-plug lives in autoload/, so we symlink subdirs only
+    mkdir -p "$HOME/.vim/autoload/lightline/colorscheme"
+    mkdir -p "$HOME/.vim/autoload/airline/themes"
+    ensure_symlink "$DOTFILES_DIR/vim/autoload/lightline/colorscheme/onehalfdark.vim" \
+        "$HOME/.vim/autoload/lightline/colorscheme/onehalfdark.vim" "lightline onehalfdark theme"
+    ensure_symlink "$DOTFILES_DIR/vim/autoload/airline/themes/onehalfdark.vim" \
+        "$HOME/.vim/autoload/airline/themes/onehalfdark.vim" "airline onehalfdark theme"
+    ensure_symlink "$DOTFILES_DIR/vim/autoload/airline/themes/onehalflight.vim" \
+        "$HOME/.vim/autoload/airline/themes/onehalflight.vim" "airline onehalflight theme"
+
+    # Auto-install vim-plug and plugins on first run
+    if [[ ! -f "$HOME/.vim/autoload/plug.vim" ]]; then
+        echo "Installing vim-plug..."
+        curl -fLo "$HOME/.vim/autoload/plug.vim" --create-dirs \
+            https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+        echo "✓ vim-plug installed"
+        echo "Installing Vim plugins (this may take a moment)..."
+        vim -es -u "$HOME/.vimrc" -i NONE -c "PlugInstall" -c "qa" 2>/dev/null || true
+        echo "✓ Vim plugins installed"
+    else
+        echo "✓ vim-plug already installed"
+    fi
+}
+
 install_forge() {
     if ! command -v forge &> /dev/null; then
         echo "Installing Forge..."
@@ -508,16 +555,7 @@ config_forge() {
         done
     fi
 
-    # gstack skills (cloned, browse binary built, skills linked with path rewriting)
-    local GSTACK_SRC="$HOME/.gstack/repo"
-    if [[ -d "$GSTACK_SRC" ]]; then
-        echo "✓ gstack already cloned, updating..."
-        (cd "$GSTACK_SRC" && git pull --ff-only 2>/dev/null || true)
-    else
-        echo "Cloning gstack..."
-        mkdir -p "$HOME/.gstack"
-        git clone https://github.com/garrytan/gstack.git "$GSTACK_SRC"
-    fi
+    # gstack skills (from submodule at shared/gstack, browse binary built, skills linked with path rewriting)
 
     # Build browse binary if bun is available
     if command -v bun &> /dev/null; then
@@ -603,6 +641,7 @@ apply_env_keys() {
 MODULE_NAMES=(
     "Shell"
     "Neovim"
+    "Vim"
     "Tmux"
     "Git Tools"
     "Amp"
@@ -621,6 +660,7 @@ MODULE_NAMES=(
 MODULE_DESCRIPTIONS=(
     "Oh My Zsh + .zshrc"
     "neovim + config"
+    "vim + config (merged keybindings)"
     "tmux + config"
     "lazygit"
     "Amp + config"
@@ -645,19 +685,20 @@ run_module() {
     case "$idx" in
         0) install_shell; config_shell ;;
         1) install_neovim; config_neovim ;;
-        2) install_tmux; config_tmux ;;
-        3) install_git_tools ;;
-        4) install_amp; config_amp ;;
-        5) install_codex; config_codex ;;
-        6) install_opencode; config_opencode ;;
-        7) install_bun; install_claude; config_claude ;;
-        8) install_pi; config_pi ;;
-        9) install_cursor ;;
-        10) install_terminal; config_terminal ;;
-        11) install_google_cloud; config_google_cloud ;;
-        12) install_agentation ;;
-        13) config_ssh ;;
-        14) install_forge; config_forge ;;
+        2) install_vim; config_vim ;;
+        3) install_tmux; config_tmux ;;
+        4) install_git_tools ;;
+        5) install_amp; config_amp ;;
+        6) install_codex; config_codex ;;
+        7) install_opencode; config_opencode ;;
+        8) install_bun; install_claude; config_claude ;;
+        9) install_pi; config_pi ;;
+        10) install_cursor ;;
+        11) install_terminal; config_terminal ;;
+        12) install_google_cloud; config_google_cloud ;;
+        13) install_agentation ;;
+        14) config_ssh ;;
+        15) install_forge; config_forge ;;
     esac
 }
 
@@ -679,7 +720,7 @@ gum_menu() {
     echo ""
 
     local chosen
-    chosen=$(printf '%s\n' "${options[@]}" | gum choose --no-limit --selected="${options[0]}","${options[1]}","${options[2]}","${options[3]}","${options[4]}","${options[5]}","${options[6]}","${options[7]}","${options[8]}","${options[9]}","${options[10]}","${options[11]}","${options[12]}","${options[13]}","${options[14]}" --cursor-prefix="[ ] " --selected-prefix="[x] " --unselected-prefix="[ ] " --header="") || { echo "Aborted."; return 1; }
+    chosen=$(printf '%s\n' "${options[@]}" | gum choose --no-limit --selected="${options[0]}","${options[1]}","${options[2]}","${options[3]}","${options[4]}","${options[5]}","${options[6]}","${options[7]}","${options[8]}","${options[9]}","${options[10]}","${options[11]}","${options[12]}","${options[13]}","${options[14]}","${options[15]}" --cursor-prefix="[ ] " --selected-prefix="[x] " --unselected-prefix="[ ] " --header="") || { echo "Aborted."; return 1; }
 
     [[ -z "$chosen" ]] && { echo "No modules selected. Aborted."; return 1; }
 
@@ -692,10 +733,10 @@ gum_menu() {
     for i in $(seq 0 $((num_modules - 1))); do
         if echo "$chosen" | grep -qF "${MODULE_NAMES[$i]}"; then
             run_module "$i"
-            if [[ "$i" -ge 4 && "$i" -le 8 ]] || [[ "$i" -eq 12 ]]; then
+            if [[ "$i" -ge 5 && "$i" -le 9 ]] || [[ "$i" -eq 13 ]]; then
                 any_ai=1
             fi
-            if [[ "$i" -eq 11 ]]; then
+            if [[ "$i" -eq 12 ]]; then
                 has_gcloud=1
             fi
         fi
@@ -751,7 +792,7 @@ toggle_selection() {
             local start="${BASH_REMATCH[1]}"
             local end="${BASH_REMATCH[2]}"
             for num in $(seq "$start" "$end"); do
-                if [[ "$num" -ge 1 && "$num" -le 15 ]]; then
+                if [[ "$num" -ge 1 && "$num" -le 16 ]]; then
                     local idx=$((num - 1))
                     if [[ "${sel_ref[$idx]}" -eq 1 ]]; then
                         sel_ref[$idx]=0
@@ -761,7 +802,7 @@ toggle_selection() {
                 fi
             done
         elif [[ "$part" =~ ^[0-9]+$ ]]; then
-            if [[ "$part" -ge 1 && "$part" -le 15 ]]; then
+            if [[ "$part" -ge 1 && "$part" -le 16 ]]; then
                 local idx=$((part - 1))
                 if [[ "${sel_ref[$idx]}" -eq 1 ]]; then
                     sel_ref[$idx]=0
@@ -774,7 +815,7 @@ toggle_selection() {
 }
 
 fallback_menu() {
-    local selected=(1 1 1 1 1 1 1 1 1 1 1 1 1 1 1)
+    local selected=(1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1)
     local num_modules=${#MODULE_NAMES[@]}
 
     while true; do
@@ -804,14 +845,14 @@ fallback_menu() {
                     fi
                 done
 
-                if [[ "${selected[4]}" -eq 1 || "${selected[5]}" -eq 1 || "${selected[6]}" -eq 1 || "${selected[7]}" -eq 1 || "${selected[8]}" -eq 1 || "${selected[12]}" -eq 1 ]]; then
+                if [[ "${selected[5]}" -eq 1 || "${selected[6]}" -eq 1 || "${selected[7]}" -eq 1 || "${selected[8]}" -eq 1 || "${selected[9]}" -eq 1 || "${selected[13]}" -eq 1 ]]; then
                     apply_env_keys
                 fi
 
                 echo ""
                 echo "Next steps:"
                 echo "  1. Run 'source ~/.zshrc'"
-                if [[ "${selected[11]}" -eq 1 ]]; then
+                if [[ "${selected[12]}" -eq 1 ]]; then
                     echo "  2. If credentials were not copied, run 'gcloud auth login'"
                     echo "  3. Then run 'gws auth setup' and 'gws auth login'"
                 fi

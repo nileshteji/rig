@@ -1,0 +1,6 @@
+[submodule "shared/skills"]
+	path = shared/skills
+	url = git@github.com:nileshteji/skills.git
+[submodule "shared/gstack"]
+	path = shared/gstack
+	url = https://github.com/garrytan/gstack.git

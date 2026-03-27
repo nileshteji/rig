@@ -1,4 +1,0 @@
-interface:
-  display_name: "Spawn"
-  short_description: "Assemble a team of agents to analyze, plan, review, implement, and validate a feature"
-  default_prompt: "Orchestrate the full team workflow: spawn scout to analyze the requirement, lorekeeper if context gaps exist, architect to plan, pattern-weaver to review architecture, forger to implement, and sentinel to validate. Route information between agents, surface blocking questions to the user, and iterate on fixes until sentinel gives a SHIP verdict."
