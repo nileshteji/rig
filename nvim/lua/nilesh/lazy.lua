@@ -171,7 +171,6 @@ require("lazy").setup({
             require('mason-lspconfig').setup({
                 ensure_installed = {
                     'jdtls',
-                    'kotlin_language_server',
                     'lua_ls',
                     'pyright',
                     'sourcekit',
@@ -260,7 +259,6 @@ require("lazy").setup({
                 capabilities = capabilities,
             })
 
-            vim.lsp.enable('kotlin_language_server')
             vim.lsp.enable('lua_ls')
             vim.lsp.enable('pyright')
             vim.lsp.enable('sourcekit')

@@ -15,7 +15,7 @@ echo "Initializing submodules..."
 echo "✓ Submodules initialized"
 
 GSTACK_SRC="$DOTFILES_DIR/shared/gstack"
-SKILLS_SRC="$DOTFILES_DIR/shared/skills"
+SKILLS_SRC="$DOTFILES_DIR/skills"
 
 # --- Utility functions ---
 
