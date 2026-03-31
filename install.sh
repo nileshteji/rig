@@ -59,11 +59,24 @@ ensure_symlink() {
     echo "✓ $label symlinked to $target_path"
 }
 
+prepare_skill_dir() {
+    local target_dir="$1"
+
+    if [[ -L "$target_dir" ]]; then
+        rm -f "$target_dir"
+    elif [[ -f "$target_dir" ]]; then
+        backup_file "$target_dir"
+        rm -f "$target_dir"
+    fi
+
+    mkdir -p "$target_dir"
+}
+
 link_all_skills() {
     local target_dir="$1"
     local label="$2"
 
-    mkdir -p "$target_dir"
+    prepare_skill_dir "$target_dir"
 
     # Link every skill directory from shared/skills into the target
     for skill_dir in "$SKILLS_SRC"/*/; do
@@ -334,15 +347,8 @@ config_pi() {
 
     local pi_skills_dir="$HOME/.pi/agent/skills"
 
-    # Repair stale symlinks from older installs (for example ~/.pi/agent/skills -> dot-files/pi/skills)
-    if [[ -L "$pi_skills_dir" ]]; then
-        rm -f "$pi_skills_dir"
-    elif [[ -f "$pi_skills_dir" ]]; then
-        backup_file "$pi_skills_dir"
-        rm -f "$pi_skills_dir"
-    fi
-
-    mkdir -p "$pi_skills_dir"
+    # Repair stale installs where ~/.pi/agent/skills was a file or symlink.
+    prepare_skill_dir "$pi_skills_dir"
 
     # Pi already discovers ~/.agents/skills. Skip overlapping skills there to avoid name-collision warnings.
     for skill_dir in "$SKILLS_SRC"/*/; do
@@ -379,8 +385,22 @@ config_claude() {
     ensure_symlink "$DOTFILES_DIR/claude/settings.json" "$HOME/.claude/settings.json" "Claude Code settings.json"
     ensure_symlink "$DOTFILES_DIR/claude/statusline-command.sh" "$HOME/.claude/statusline-command.sh" "Claude Code statusline script"
 
-    # Link all skills from shared/skills
+    # Link all shared skills, then overlay Claude-specific extras from ~/.agents/skills.
     link_all_skills "$HOME/.claude/skills" "Claude Code"
+
+    local claude_user_skills=(
+        "agentation"
+        "agentation-self-driving"
+        "brainstorming"
+        "find-skills"
+        "remotion-best-practices"
+    )
+    local skill_name
+    for skill_name in "${claude_user_skills[@]}"; do
+        if [[ -d "$HOME/.agents/skills/$skill_name" ]]; then
+            ensure_symlink "$HOME/.agents/skills/$skill_name" "$HOME/.claude/skills/$skill_name" "Claude Code skill: $skill_name"
+        fi
+    done
 
     # Claude Code agents
     if [[ -d "$DOTFILES_DIR/claude/agents" ]]; then
@@ -496,6 +516,11 @@ install_agentation() {
     else
         echo "✗ agentation/install.sh not found"
     fi
+}
+
+config_copilot_skills() {
+    echo "Setting up Copilot skills..."
+    link_all_skills "$HOME/.copilot/skills" "Copilot"
 }
 
 install_gstack() {
@@ -693,6 +718,7 @@ MODULE_NAMES=(
     "Terminal"
     "Google Cloud"
     "Agentation"
+    "Copilot"
     "SSH & Security"
     "Forge"
     "Gstack"
@@ -712,13 +738,23 @@ MODULE_DESCRIPTIONS=(
     "Cursor IDE"
     "Ghostty + config"
     "GWS CLI, gcloud + credentials"
-    "Agentation MCP + skills for AI tools"
+    "Agentation MCP for AI tools"
+    "Copilot shared skills"
     "SSH config, 1Password socket"
     "Forge CLI + shared skills, zsh integration"
     "Optional gstack install for Claude Code and Forge"
 )
 
 # --- Run a module by index (0-based) ---
+
+module_requires_env_keys() {
+    local idx="$1"
+
+    case "$idx" in
+        5|6|7|8|9|13|14|16|17) return 0 ;;
+        *) return 1 ;;
+    esac
+}
 
 run_module() {
     local idx="$1"
@@ -739,9 +775,10 @@ run_module() {
         11) install_terminal; config_terminal ;;
         12) install_google_cloud; config_google_cloud ;;
         13) install_agentation ;;
-        14) config_ssh ;;
-        15) install_forge; config_forge ;;
-        16) install_gstack; config_gstack ;;
+        14) config_copilot_skills ;;
+        15) config_ssh ;;
+        16) install_forge; config_forge ;;
+        17) install_gstack; config_gstack ;;
     esac
 }
 
@@ -763,7 +800,7 @@ gum_menu() {
     echo ""
 
     local chosen
-    chosen=$(printf '%s\n' "${options[@]}" | gum choose --no-limit --selected="${options[0]}","${options[1]}","${options[2]}","${options[3]}","${options[4]}","${options[5]}","${options[6]}","${options[7]}","${options[8]}","${options[9]}","${options[10]}","${options[11]}","${options[12]}","${options[13]}","${options[14]}","${options[15]}" --cursor-prefix="[ ] " --selected-prefix="[x] " --unselected-prefix="[ ] " --header="") || { echo "Aborted."; return 1; }
+    chosen=$(printf '%s\n' "${options[@]}" | gum choose --no-limit --selected="${options[0]}","${options[1]}","${options[2]}","${options[3]}","${options[4]}","${options[5]}","${options[6]}","${options[7]}","${options[8]}","${options[9]}","${options[10]}","${options[11]}","${options[12]}","${options[13]}","${options[14]}","${options[15]}","${options[16]}" --cursor-prefix="[ ] " --selected-prefix="[x] " --unselected-prefix="[ ] " --header="") || { echo "Aborted."; return 1; }
 
     [[ -z "$chosen" ]] && { echo "No modules selected. Aborted."; return 1; }
 
@@ -776,7 +813,7 @@ gum_menu() {
     for i in $(seq 0 $((num_modules - 1))); do
         if echo "$chosen" | grep -qF "${MODULE_NAMES[$i]}"; then
             run_module "$i"
-            if [[ "$i" -ge 5 && "$i" -le 9 ]] || [[ "$i" -eq 13 ]]; then
+            if module_requires_env_keys "$i"; then
                 any_ai=1
             fi
             if [[ "$i" -eq 12 ]]; then
@@ -827,6 +864,7 @@ toggle_selection() {
     local input="$1"
     shift
     local -n sel_ref=$1
+    local num_modules=${#MODULE_NAMES[@]}
 
     IFS=',' read -ra parts <<< "$input"
     for part in "${parts[@]}"; do
@@ -835,7 +873,7 @@ toggle_selection() {
             local start="${BASH_REMATCH[1]}"
             local end="${BASH_REMATCH[2]}"
             for num in $(seq "$start" "$end"); do
-                if [[ "$num" -ge 1 && "$num" -le 17 ]]; then
+                if [[ "$num" -ge 1 && "$num" -le "$num_modules" ]]; then
                     local idx=$((num - 1))
                     if [[ "${sel_ref[$idx]}" -eq 1 ]]; then
                         sel_ref[$idx]=0
@@ -845,7 +883,7 @@ toggle_selection() {
                 fi
             done
         elif [[ "$part" =~ ^[0-9]+$ ]]; then
-            if [[ "$part" -ge 1 && "$part" -le 17 ]]; then
+            if [[ "$part" -ge 1 && "$part" -le "$num_modules" ]]; then
                 local idx=$((part - 1))
                 if [[ "${sel_ref[$idx]}" -eq 1 ]]; then
                     sel_ref[$idx]=0
@@ -858,7 +896,7 @@ toggle_selection() {
 }
 
 fallback_menu() {
-    local selected=(1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0)
+    local selected=(1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0)
     local num_modules=${#MODULE_NAMES[@]}
 
     while true; do
@@ -888,7 +926,14 @@ fallback_menu() {
                     fi
                 done
 
-                if [[ "${selected[5]}" -eq 1 || "${selected[6]}" -eq 1 || "${selected[7]}" -eq 1 || "${selected[8]}" -eq 1 || "${selected[9]}" -eq 1 || "${selected[13]}" -eq 1 ]]; then
+                local any_ai=0
+                for i in $(seq 0 $((num_modules - 1))); do
+                    if [[ "${selected[$i]}" -eq 1 ]] && module_requires_env_keys "$i"; then
+                        any_ai=1
+                        break
+                    fi
+                done
+                if [[ "$any_ai" -eq 1 ]]; then
                     apply_env_keys
                 fi
 

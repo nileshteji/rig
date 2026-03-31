@@ -6,3 +6,5 @@ gws/credentials.json
 *.backup.*
 zsh/.zshrc.local
 .gstack/
+
+.claude/worktrees/
