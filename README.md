@@ -48,6 +48,7 @@ The installer gives you a **interactive menu** powered by [gum](https://github.c
   [x] 11. Google Cloud       (GWS CLI, gcloud + credentials)
   [x] 12. Agentation         (Agentation MCP + skills for AI tools)
   [x] 13. SSH & Security     (SSH config, 1Password socket)
+  [ ] 14. Gstack             (Optional gstack install for Claude Code and Forge)
 ```
 
 > **No gum?** No problem. Falls back to a number-based menu where you type `1,3,5` or `1-4` to toggle.
@@ -82,7 +83,8 @@ The installer gives you a **interactive menu** powered by [gum](https://github.c
 | **Amp** | Config + MCP servers |
 | **Codex** | Config, skills, agents |
 | **OpenCode** | Config + MCP servers |
-| **Claude** | Claude Code, Desktop, Cursor + agents, [gstack](https://github.com/garrytan/gstack.git) skills |
+| **Claude** | Claude Code, Desktop, Cursor + agents |
+| **Gstack** | Optional [gstack](https://github.com/garrytan/gstack.git) skills for Claude Code and Forge |
 | **Pi** | Pi CLI + specialist skills |
 | **Google Cloud** | GWS CLI + gcloud |
 | **SSH** | 1Password agent socket |
@@ -251,7 +253,7 @@ vim.lsp.enable('tsserver')
 
 ## Acknowledgements
 
-- [gstack](https://github.com/garrytan/gstack.git) by [Garry Tan](https://github.com/garrytan) — extremely powerful Claude Code skills for browsing, QA, PR review, shipping, and engineering retrospectives. Installed automatically by the Claude module.
+- [gstack](https://github.com/garrytan/gstack.git) by [Garry Tan](https://github.com/garrytan) — extremely powerful Claude Code skills for browsing, QA, PR review, shipping, and engineering retrospectives. Available as a separate optional installer module.
 
 ---
 

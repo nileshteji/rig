@@ -21,7 +21,7 @@
   "preferences": {
     "coworkScheduledTasksEnabled": true,
     "ccdScheduledTasksEnabled": true,
-    "sidebarMode": "code",
+    "sidebarMode": "chat",
     "coworkWebSearchEnabled": true
   }
 }

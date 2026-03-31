@@ -332,8 +332,34 @@ config_pi() {
         ensure_symlink "$DOTFILES_DIR/pi/AGENTS.md" "$HOME/.pi/agent/AGENTS.md" "Pi AGENTS.md"
     fi
 
-    # Link all skills from shared/skills
-    link_all_skills "$HOME/.pi/agent/skills" "Pi"
+    local pi_skills_dir="$HOME/.pi/agent/skills"
+
+    # Repair stale symlinks from older installs (for example ~/.pi/agent/skills -> dot-files/pi/skills)
+    if [[ -L "$pi_skills_dir" ]]; then
+        rm -f "$pi_skills_dir"
+    elif [[ -f "$pi_skills_dir" ]]; then
+        backup_file "$pi_skills_dir"
+        rm -f "$pi_skills_dir"
+    fi
+
+    mkdir -p "$pi_skills_dir"
+
+    # Pi already discovers ~/.agents/skills. Skip overlapping skills there to avoid name-collision warnings.
+    for skill_dir in "$SKILLS_SRC"/*/; do
+        if [[ -d "$skill_dir" ]]; then
+            local skill_name
+            skill_name="$(basename "$skill_dir")"
+
+            case "$skill_name" in
+                gstack|remotion-best-practices)
+                    echo "✓ Pi skill already provided elsewhere, skipping duplicate: $skill_name"
+                    continue
+                    ;;
+            esac
+
+            ensure_symlink "$skill_dir" "$pi_skills_dir/$skill_name" "Pi skill: $skill_name"
+        fi
+    done
 }
 
 install_cursor() {
@@ -355,14 +381,6 @@ config_claude() {
 
     # Link all skills from shared/skills
     link_all_skills "$HOME/.claude/skills" "Claude Code"
-
-    # gstack skills (from submodule at shared/gstack)
-    echo "Installing gstack skills..."
-    rm -rf "$HOME/.claude/skills/gstack"
-    ln -s "$GSTACK_SRC" "$HOME/.claude/skills/gstack"
-    echo "Running gstack setup..."
-    (cd "$GSTACK_SRC" && ./setup)
-    echo "✓ gstack skills installed"
 
     # Claude Code agents
     if [[ -d "$DOTFILES_DIR/claude/agents" ]]; then
@@ -480,6 +498,70 @@ install_agentation() {
     fi
 }
 
+install_gstack() {
+    if [[ ! -d "$GSTACK_SRC" ]]; then
+        echo "✗ gstack source not found at $GSTACK_SRC"
+        return 1
+    fi
+
+    install_bun
+}
+
+config_gstack() {
+    if [[ ! -d "$GSTACK_SRC" ]]; then
+        echo "✗ gstack source not found at $GSTACK_SRC"
+        return 1
+    fi
+
+    echo "Setting up gstack for Claude Code..."
+    mkdir -p "$HOME/.claude/skills"
+    rm -rf "$HOME/.claude/skills/gstack"
+    ln -s "$GSTACK_SRC" "$HOME/.claude/skills/gstack"
+    echo "Running gstack setup..."
+    (cd "$GSTACK_SRC" && ./setup)
+    echo "✓ gstack installed for Claude Code"
+
+    if [[ -d "$HOME/forge/skills" || -x "$(command -v forge 2>/dev/null)" ]]; then
+        echo "Setting up gstack for Forge..."
+
+        if command -v bun &> /dev/null; then
+            echo "Building gstack browse binary..."
+            (cd "$GSTACK_SRC" && bun install --frozen-lockfile 2>/dev/null && bun run build 2>/dev/null || true)
+        fi
+
+        local forge_gstack="$HOME/forge/skills/gstack"
+        rm -rf "$forge_gstack"
+        mkdir -p "$forge_gstack" "$forge_gstack/browse" "$forge_gstack/gstack-upgrade" "$forge_gstack/review"
+
+        ln -snf "$GSTACK_SRC/bin" "$forge_gstack/bin"
+        ln -snf "$GSTACK_SRC/browse/dist" "$forge_gstack/browse/dist"
+        ln -snf "$GSTACK_SRC/browse/bin" "$forge_gstack/browse/bin"
+        [[ -f "$GSTACK_SRC/ETHOS.md" ]] && ln -snf "$GSTACK_SRC/ETHOS.md" "$forge_gstack/ETHOS.md"
+
+        if [[ -f "$GSTACK_SRC/SKILL.md" ]]; then
+            sed -e "s|~/.claude/skills/gstack|~/forge/skills/gstack|g" \
+                -e "s|\.claude/skills/gstack|forge/skills/gstack|g" \
+                -e "s|\.claude/skills|forge/skills|g" \
+                "$GSTACK_SRC/SKILL.md" > "$forge_gstack/SKILL.md"
+        fi
+
+        for skill_dir in "$GSTACK_SRC"/*/; do
+            if [[ -f "$skill_dir/SKILL.md" ]]; then
+                local gstack_skill_name
+                gstack_skill_name="$(basename "$skill_dir")"
+                [[ "$gstack_skill_name" == "node_modules" ]] && continue
+                [[ "$gstack_skill_name" == "test" ]] && continue
+                local target="$HOME/forge/skills/$gstack_skill_name"
+                if [[ -L "$target" ]] || [[ ! -e "$target" ]]; then
+                    ln -snf "gstack/$gstack_skill_name" "$target"
+                fi
+            fi
+        done
+
+        echo "✓ gstack installed for Forge"
+    fi
+}
+
 config_ssh() {
     echo "Setting up ssh config..."
     mkdir -p ~/.ssh
@@ -555,48 +637,6 @@ config_forge() {
     # Link all skills from shared/skills
     link_all_skills "$HOME/forge/skills" "Forge"
 
-    # gstack skills (from submodule at shared/gstack, browse binary built, skills linked with path rewriting)
-
-    # Build browse binary if bun is available
-    if command -v bun &> /dev/null; then
-        echo "Building gstack browse binary..."
-        (cd "$GSTACK_SRC" && bun install --frozen-lockfile 2>/dev/null && bun run build 2>/dev/null || true)
-    fi
-
-    # Link gstack skills into ~/forge/skills/ with path rewriting
-    local FORGE_GSTACK="$HOME/forge/skills/gstack"
-    rm -rf "$FORGE_GSTACK"
-    mkdir -p "$FORGE_GSTACK" "$FORGE_GSTACK/browse" "$FORGE_GSTACK/gstack-upgrade" "$FORGE_GSTACK/review"
-
-    # Symlink runtime assets
-    ln -snf "$GSTACK_SRC/bin" "$FORGE_GSTACK/bin"
-    ln -snf "$GSTACK_SRC/browse/dist" "$FORGE_GSTACK/browse/dist"
-    ln -snf "$GSTACK_SRC/browse/bin" "$FORGE_GSTACK/browse/bin"
-    [[ -f "$GSTACK_SRC/ETHOS.md" ]] && ln -snf "$GSTACK_SRC/ETHOS.md" "$FORGE_GSTACK/ETHOS.md"
-
-    # Rewrite root SKILL.md paths for Forge
-    if [[ -f "$GSTACK_SRC/SKILL.md" ]]; then
-        sed -e "s|~/.claude/skills/gstack|~/forge/skills/gstack|g" \
-            -e "s|\.claude/skills/gstack|forge/skills/gstack|g" \
-            -e "s|\.claude/skills|forge/skills|g" \
-            "$GSTACK_SRC/SKILL.md" > "$FORGE_GSTACK/SKILL.md"
-    fi
-
-    # Link individual gstack sub-skills
-    for skill_dir in "$GSTACK_SRC"/*/; do
-        if [[ -f "$skill_dir/SKILL.md" ]]; then
-            local gstack_skill_name
-            gstack_skill_name="$(basename "$skill_dir")"
-            [[ "$gstack_skill_name" == "node_modules" ]] && continue
-            [[ "$gstack_skill_name" == "test" ]] && continue
-            local target="$HOME/forge/skills/$gstack_skill_name"
-            if [[ -L "$target" ]] || [[ ! -e "$target" ]]; then
-                ln -snf "gstack/$gstack_skill_name" "$target"
-            fi
-        fi
-    done
-    echo "✓ gstack skills installed for Forge"
-
     # Forge zsh integration
     echo "Setting up Forge zsh integration..."
     if command -v forge &> /dev/null; then
@@ -655,6 +695,7 @@ MODULE_NAMES=(
     "Agentation"
     "SSH & Security"
     "Forge"
+    "Gstack"
 )
 
 MODULE_DESCRIPTIONS=(
@@ -673,7 +714,8 @@ MODULE_DESCRIPTIONS=(
     "GWS CLI, gcloud + credentials"
     "Agentation MCP + skills for AI tools"
     "SSH config, 1Password socket"
-    "Forge CLI + shared skills, gstack, zsh integration"
+    "Forge CLI + shared skills, zsh integration"
+    "Optional gstack install for Claude Code and Forge"
 )
 
 # --- Run a module by index (0-based) ---
@@ -699,6 +741,7 @@ run_module() {
         13) install_agentation ;;
         14) config_ssh ;;
         15) install_forge; config_forge ;;
+        16) install_gstack; config_gstack ;;
     esac
 }
 
@@ -792,7 +835,7 @@ toggle_selection() {
             local start="${BASH_REMATCH[1]}"
             local end="${BASH_REMATCH[2]}"
             for num in $(seq "$start" "$end"); do
-                if [[ "$num" -ge 1 && "$num" -le 16 ]]; then
+                if [[ "$num" -ge 1 && "$num" -le 17 ]]; then
                     local idx=$((num - 1))
                     if [[ "${sel_ref[$idx]}" -eq 1 ]]; then
                         sel_ref[$idx]=0
@@ -802,7 +845,7 @@ toggle_selection() {
                 fi
             done
         elif [[ "$part" =~ ^[0-9]+$ ]]; then
-            if [[ "$part" -ge 1 && "$part" -le 16 ]]; then
+            if [[ "$part" -ge 1 && "$part" -le 17 ]]; then
                 local idx=$((part - 1))
                 if [[ "${sel_ref[$idx]}" -eq 1 ]]; then
                     sel_ref[$idx]=0
@@ -815,7 +858,7 @@ toggle_selection() {
 }
 
 fallback_menu() {
-    local selected=(1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1)
+    local selected=(1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0)
     local num_modules=${#MODULE_NAMES[@]}
 
     while true; do

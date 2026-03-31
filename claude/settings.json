@@ -9,5 +9,13 @@
   },
   "effortLevel": "medium",
   "voiceEnabled": true,
-  "theme": "dark"
+  "theme": "dark",
+  "extraKnownMarketplaces": {
+    "openai-codex": {
+      "source": {
+        "source": "github",
+        "repo": "openai/codex-plugin-cc"
+      }
+    }
+  }
 }
