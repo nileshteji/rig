@@ -1,0 +1,21 @@
+# Pi Extensions Manifest
+# Add one extension per line. Lines starting with # are comments.
+#
+# Supported formats:
+#   git:github.com/user/repo@version
+#   npm:@scope/package@version
+#   /absolute/path/to/extension
+#   ./relative/path/to/extension
+#
+# Examples:
+#   git:github.com/xRyul/pi-nvidia-nim
+#   npm:@some/package@1.0.0
+
+# NVIDIA NIM API provider extension - access 100+ models from build.nvidia.com
+git:github.com/xRyul/pi-nvidia-nim
+
+# Ollama web search extension - enables web search capabilities using local Ollama
+npm:@ollama/pi-web-search
+
+# Auto theme extension - automatically switches between light/dark themes
+npm:pi-auto-theme
