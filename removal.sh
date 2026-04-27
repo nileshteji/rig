@@ -24,6 +24,21 @@ remove_symlink() {
     fi
 }
 
+remove_managed_path() {
+    local target_path="$1"
+    local label="$2"
+
+    if [[ -L "$target_path" || -f "$target_path" ]]; then
+        rm -f "$target_path"
+        echo "✓ Removed $label ($target_path)"
+    elif [[ -d "$target_path" ]]; then
+        rm -rf "$target_path"
+        echo "✓ Removed directory $label ($target_path)"
+    else
+        echo "  Skipped $label ($target_path does not exist)"
+    fi
+}
+
 # --- Module removal functions ---
 
 remove_shell() {
@@ -48,6 +63,23 @@ remove_neovim() {
     fi
 
     remove_symlink "$HOME/.config/nvim" "nvim config"
+}
+
+remove_vim() {
+    if command -v vim &> /dev/null; then
+        echo "Uninstalling Vim..."
+        brew uninstall vim 2>/dev/null || true
+        echo "✓ Vim uninstalled"
+    else
+        echo "  Vim not installed"
+    fi
+
+    remove_managed_path "$HOME/.vimrc" "vimrc"
+    remove_managed_path "$HOME/.vim/colors" "vim colors"
+    remove_managed_path "$HOME/.vim/after" "vim after"
+    remove_managed_path "$HOME/.vim/autoload/lightline/colorscheme/onehalfdark.vim" "lightline onehalfdark theme"
+    remove_managed_path "$HOME/.vim/autoload/airline/themes/onehalfdark.vim" "airline onehalfdark theme"
+    remove_managed_path "$HOME/.vim/autoload/airline/themes/onehalflight.vim" "airline onehalflight theme"
 }
 
 remove_tmux() {
@@ -81,7 +113,7 @@ remove_amp() {
         echo "  Amp not installed"
     fi
 
-    remove_symlink "$HOME/.config/amp/settings.json" "Amp config"
+    remove_managed_path "$HOME/.config/amp/settings.json" "Amp config"
 }
 
 remove_codex() {
@@ -93,8 +125,8 @@ remove_codex() {
         echo "  Codex not installed"
     fi
 
-    remove_symlink "$HOME/.codex/config.toml" "Codex config.toml"
-    remove_symlink "$HOME/.codex/skills" "Codex skills"
+    remove_managed_path "$HOME/.codex/config.toml" "Codex config.toml"
+    remove_managed_path "$HOME/.codex/skills" "Codex skills"
     remove_symlink "$HOME/.codex/agents" "Codex agents"
 }
 
@@ -107,7 +139,7 @@ remove_opencode() {
         echo "  OpenCode not installed"
     fi
 
-    remove_symlink "$HOME/.config/opencode/opencode.json" "OpenCode config"
+    remove_managed_path "$HOME/.config/opencode/opencode.json" "OpenCode config"
     remove_symlink "$HOME/.config/.opencode" "OpenCode hidden config"
 }
 
@@ -123,11 +155,25 @@ remove_claude() {
     # Claude Code config symlinks
     remove_symlink "$HOME/.claude/settings.json" "Claude Code settings"
     remove_symlink "$HOME/.claude/statusline-command.sh" "Claude Code statusline script"
+    remove_managed_path "$HOME/.claude/skills" "Claude Code skills"
     remove_symlink "$HOME/.claude/agents" "Claude Code agents"
 
     # Claude Desktop config
     CLAUDE_DESKTOP_CONFIG_DIR="$HOME/Library/Application Support/Claude"
     remove_symlink "$CLAUDE_DESKTOP_CONFIG_DIR/claude_desktop_config.json" "Claude Desktop config"
+}
+
+remove_pi() {
+    if command -v pi &> /dev/null; then
+        echo "Uninstalling Pi..."
+        npm uninstall -g @mariozechner/pi-coding-agent 2>/dev/null || true
+        echo "✓ Pi uninstalled"
+    else
+        echo "  Pi not installed"
+    fi
+
+    remove_symlink "$HOME/.pi/agent/AGENTS.md" "Pi AGENTS.md"
+    remove_managed_path "$HOME/.pi/agent/skills" "Pi skills"
 }
 
 remove_cursor() {
@@ -156,6 +202,14 @@ remove_terminal() {
     fi
 
     remove_symlink "$GHOSTTY_CONFIG_DIR/config" "Ghostty config"
+}
+
+remove_agentation() {
+    remove_managed_path "$HOME/.config/agentation" "Agentation config"
+}
+
+remove_copilot_skills() {
+    remove_managed_path "$HOME/.copilot/skills" "Copilot skills"
 }
 
 remove_google_cloud() {
@@ -187,6 +241,40 @@ remove_google_cloud() {
     fi
 }
 
+remove_forge() {
+    if command -v forge &> /dev/null; then
+        echo "Uninstalling Forge..."
+        brew uninstall forge 2>/dev/null || true
+        echo "✓ Forge uninstalled"
+    else
+        echo "  Forge not installed"
+    fi
+
+    remove_managed_path "$HOME/forge/skills" "Forge skills"
+}
+
+remove_gstack() {
+    local skill_dir
+
+    for skill_dir in "$HOME/.claude/skills"/gstack*; do
+        if [[ -e "$skill_dir" || -L "$skill_dir" ]]; then
+            remove_managed_path "$skill_dir" "Claude Code gstack skill"
+        fi
+    done
+
+    for skill_dir in "$HOME/.codex/skills"/gstack*; do
+        if [[ -e "$skill_dir" || -L "$skill_dir" ]]; then
+            remove_managed_path "$skill_dir" "Codex gstack skill"
+        fi
+    done
+
+    for skill_dir in "$HOME/.agents/skills"/gstack*; do
+        if [[ -e "$skill_dir" || -L "$skill_dir" ]]; then
+            remove_managed_path "$skill_dir" "Shared gstack skill"
+        fi
+    done
+}
+
 remove_ssh() {
     remove_symlink "$HOME/.ssh/config" "SSH config"
 
@@ -203,31 +291,43 @@ remove_ssh() {
 MODULE_NAMES=(
     "Shell"
     "Neovim"
+    "Vim"
     "Tmux"
     "Git Tools"
     "Amp"
     "Codex"
     "OpenCode"
     "Claude"
+    "Pi"
     "Cursor"
     "Terminal"
     "Google Cloud"
+    "Agentation"
+    "Copilot"
     "SSH & Security"
+    "Forge"
+    "Gstack"
 )
 
 MODULE_DESCRIPTIONS=(
     "Oh My Zsh + .zshrc"
     "neovim + config"
+    "vim + config (merged keybindings)"
     "tmux + config"
     "lazygit"
     "Amp + config"
     "Codex + config, skills, agents"
     "OpenCode + config"
     "Claude Code, Claude Desktop + configs"
+    "Pi + shared skills"
     "Cursor IDE"
     "Ghostty + config"
     "GWS CLI, gcloud + credentials"
+    "Agentation MCP for AI tools"
+    "Copilot shared skills"
     "SSH config, 1Password socket"
+    "Forge CLI + shared skills, zsh integration"
+    "Optional gstack install via ~/.agents/skills, linked to Claude Code and Codex"
 )
 
 # --- Run a module by index (0-based) ---
@@ -239,16 +339,22 @@ run_module() {
     case "$idx" in
         0) remove_shell ;;
         1) remove_neovim ;;
-        2) remove_tmux ;;
-        3) remove_git_tools ;;
-        4) remove_amp ;;
-        5) remove_codex ;;
-        6) remove_opencode ;;
-        7) remove_claude ;;
-        8) remove_cursor ;;
-        9) remove_terminal ;;
-        10) remove_google_cloud ;;
-        11) remove_ssh ;;
+        2) remove_vim ;;
+        3) remove_tmux ;;
+        4) remove_git_tools ;;
+        5) remove_amp ;;
+        6) remove_codex ;;
+        7) remove_opencode ;;
+        8) remove_claude ;;
+        9) remove_pi ;;
+        10) remove_cursor ;;
+        11) remove_terminal ;;
+        12) remove_google_cloud ;;
+        13) remove_agentation ;;
+        14) remove_copilot_skills ;;
+        15) remove_ssh ;;
+        16) remove_forge ;;
+        17) remove_gstack ;;
     esac
 }
 
@@ -331,7 +437,7 @@ toggle_selection() {
             local start="${BASH_REMATCH[1]}"
             local end="${BASH_REMATCH[2]}"
             for num in $(seq "$start" "$end"); do
-                if [[ "$num" -ge 1 && "$num" -le 12 ]]; then
+                if [[ "$num" -ge 1 && "$num" -le ${#MODULE_NAMES[@]} ]]; then
                     local idx=$((num - 1))
                     if [[ "${sel_ref[$idx]}" -eq 1 ]]; then
                         sel_ref[$idx]=0
@@ -341,7 +447,7 @@ toggle_selection() {
                 fi
             done
         elif [[ "$part" =~ ^[0-9]+$ ]]; then
-            if [[ "$part" -ge 1 && "$part" -le 12 ]]; then
+            if [[ "$part" -ge 1 && "$part" -le ${#MODULE_NAMES[@]} ]]; then
                 local idx=$((part - 1))
                 if [[ "${sel_ref[$idx]}" -eq 1 ]]; then
                     sel_ref[$idx]=0
@@ -354,7 +460,7 @@ toggle_selection() {
 }
 
 fallback_menu() {
-    local selected=(0 0 0 0 0 0 0 0 0 0 0 0)
+    local selected=(0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0)
     local num_modules=${#MODULE_NAMES[@]}
 
     while true; do

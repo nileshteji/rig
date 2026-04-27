@@ -72,6 +72,44 @@ prepare_skill_dir() {
     mkdir -p "$target_dir"
 }
 
+get_context7_api_key() {
+    local env_file="$DOTFILES_DIR/.env"
+
+    if [[ ! -f "$env_file" ]]; then
+        return 1
+    fi
+
+    grep -E "^CONTEXT7_API_KEY=" "$env_file" | head -n 1 | cut -d'=' -f2- | tr -d '"' | tr -d "'"
+}
+
+render_context7_config() {
+    local source_path="$1"
+    local target_path="$2"
+    local label="$3"
+    local ctx7_key="${4:-}"
+
+    mkdir -p "$(dirname "$target_path")"
+    backup_file "$target_path"
+    rm -f "$target_path"
+
+    if [[ -n "$ctx7_key" ]]; then
+        python3 - "$source_path" "$target_path" "$ctx7_key" <<'PY'
+import sys
+source_path, target_path, ctx7_key = sys.argv[1:4]
+text = open(source_path, encoding="utf-8").read()
+text = text.replace('"CONTEXT7_API_KEY": ""', f'"CONTEXT7_API_KEY": "{ctx7_key}"')
+text = text.replace('CONTEXT7_API_KEY = ""', f'CONTEXT7_API_KEY = "{ctx7_key}"')
+with open(target_path, 'w', encoding='utf-8') as f:
+    f.write(text)
+PY
+        echo "✓ $label written to $target_path with Context7 API key from .env"
+    else
+        cp "$source_path" "$target_path"
+        echo "✓ $label written to $target_path"
+        echo "  No CONTEXT7_API_KEY found in .env; leaving placeholder in local config"
+    fi
+}
+
 link_all_skills() {
     local target_dir="$1"
     local label="$2"
@@ -102,6 +140,22 @@ link_all_skills() {
             local file_name
             file_name="$(basename "$skill_file")"
             ensure_symlink "$skill_file" "$target_dir/$file_name" "$label asset: $file_name"
+        fi
+    done
+}
+
+link_gstack_host_skills() {
+    local source_dir="$1"
+    local target_dir="$2"
+    local label="$3"
+
+    mkdir -p "$target_dir"
+
+    for skill_dir in "$source_dir"/gstack*/; do
+        if [[ -d "$skill_dir" ]]; then
+            local skill_name
+            skill_name="$(basename "$skill_dir")"
+            ensure_symlink "$skill_dir" "$target_dir/$skill_name" "$label skill: $skill_name"
         fi
     done
 }
@@ -235,11 +289,9 @@ install_amp() {
 
 config_amp() {
     echo "Setting up Amp config..."
-    mkdir -p ~/.config/amp
-    backup_file "$HOME/.config/amp/settings.json"
-    rm -f ~/.config/amp/settings.json
-    ln -s "$DOTFILES_DIR/amp/settings.json" ~/.config/amp/settings.json
-    echo "✓ Amp config symlinked to ~/.config/amp/settings.json"
+    local ctx7_key
+    ctx7_key="$(get_context7_api_key || true)"
+    render_context7_config "$DOTFILES_DIR/amp/settings.json" "$HOME/.config/amp/settings.json" "Amp config" "$ctx7_key"
 }
 
 install_codex() {
@@ -255,13 +307,19 @@ install_codex() {
 config_codex() {
     echo "Setting up Codex config..."
     if [[ -f "$DOTFILES_DIR/codex/config.toml" ]]; then
-        mkdir -p "$HOME/.codex"
-        ensure_symlink "$DOTFILES_DIR/codex/config.toml" "$HOME/.codex/config.toml" "Codex config.toml"
+        local ctx7_key
+        ctx7_key="$(get_context7_api_key || true)"
+        render_context7_config "$DOTFILES_DIR/codex/config.toml" "$HOME/.codex/config.toml" "Codex config.toml" "$ctx7_key"
         ensure_symlink "$DOTFILES_DIR/codex/agents" "$HOME/.codex/agents" "Codex agents"
     fi
 
     # Link all skills from shared/skills
     link_all_skills "$HOME/.codex/skills" "Codex"
+
+    if [[ -d "$HOME/.agents/skills/gstack" ]]; then
+        ensure_symlink "$HOME/.agents/skills/gstack" "$HOME/.codex/skills/gstack" "Codex skill: gstack"
+        link_gstack_host_skills "$HOME/.agents/skills" "$HOME/.codex/skills" "Codex"
+    fi
 
     # Link codex-specific .system skills
     ensure_symlink "$DOTFILES_DIR/codex/.system" "$HOME/.codex/skills/.system" "Codex .system skills"
@@ -282,11 +340,9 @@ install_opencode() {
 
 config_opencode() {
     echo "Setting up OpenCode config..."
-    mkdir -p ~/.config/opencode
-    backup_file "$HOME/.config/opencode/opencode.json"
-    rm -f ~/.config/opencode/opencode.json
-    ln -s "$DOTFILES_DIR/opencode/opencode.json" ~/.config/opencode/opencode.json
-    echo "✓ OpenCode config symlinked to ~/.config/opencode/opencode.json"
+    local ctx7_key
+    ctx7_key="$(get_context7_api_key || true)"
+    render_context7_config "$DOTFILES_DIR/opencode/opencode.json" "$HOME/.config/opencode/opencode.json" "OpenCode config" "$ctx7_key"
 
     echo "Setting up OpenCode hidden config..."
     mkdir -p ~/.config
@@ -393,6 +449,7 @@ config_claude() {
         "agentation-self-driving"
         "brainstorming"
         "find-skills"
+        "gstack"
         "remotion-best-practices"
     )
     local skill_name
@@ -401,6 +458,10 @@ config_claude() {
             ensure_symlink "$HOME/.agents/skills/$skill_name" "$HOME/.claude/skills/$skill_name" "Claude Code skill: $skill_name"
         fi
     done
+
+    if [[ -d "$HOME/.agents/skills/gstack" ]]; then
+        link_gstack_host_skills "$HOME/.agents/skills" "$HOME/.claude/skills" "Claude Code"
+    fi
 
     # Claude Code agents
     if [[ -d "$DOTFILES_DIR/claude/agents" ]]; then
@@ -538,53 +599,23 @@ config_gstack() {
         return 1
     fi
 
-    echo "Setting up gstack for Claude Code..."
-    mkdir -p "$HOME/.claude/skills"
-    rm -rf "$HOME/.claude/skills/gstack"
-    ln -s "$GSTACK_SRC" "$HOME/.claude/skills/gstack"
-    echo "Running gstack setup..."
-    (cd "$GSTACK_SRC" && ./setup)
-    echo "✓ gstack installed for Claude Code"
+    echo "Setting up gstack in ~/.agents/skills..."
+    mkdir -p "$HOME/.agents/skills" "$HOME/.claude/skills" "$HOME/.codex/skills"
 
-    if [[ -d "$HOME/forge/skills" || -x "$(command -v forge 2>/dev/null)" ]]; then
-        echo "Setting up gstack for Forge..."
+    ensure_symlink "$GSTACK_SRC" "$HOME/.agents/skills/gstack" "gstack source-of-truth skill"
+    ensure_symlink "$HOME/.agents/skills/gstack" "$HOME/.claude/skills/gstack" "Claude Code skill: gstack"
+    ensure_symlink "$HOME/.agents/skills/gstack" "$HOME/.codex/skills/gstack" "Codex skill: gstack"
 
-        if command -v bun &> /dev/null; then
-            echo "Building gstack browse binary..."
-            (cd "$GSTACK_SRC" && bun install --frozen-lockfile 2>/dev/null && bun run build 2>/dev/null || true)
-        fi
+    echo "Running gstack setup for Claude Code..."
+    (cd "$HOME/.claude/skills/gstack" && ./setup)
 
-        local forge_gstack="$HOME/forge/skills/gstack"
-        rm -rf "$forge_gstack"
-        mkdir -p "$forge_gstack" "$forge_gstack/browse" "$forge_gstack/gstack-upgrade" "$forge_gstack/review"
+    echo "Running gstack setup for Codex-compatible hosts..."
+    (cd "$HOME/.agents/skills/gstack" && ./setup --host codex)
 
-        ln -snf "$GSTACK_SRC/bin" "$forge_gstack/bin"
-        ln -snf "$GSTACK_SRC/browse/dist" "$forge_gstack/browse/dist"
-        ln -snf "$GSTACK_SRC/browse/bin" "$forge_gstack/browse/bin"
-        [[ -f "$GSTACK_SRC/ETHOS.md" ]] && ln -snf "$GSTACK_SRC/ETHOS.md" "$forge_gstack/ETHOS.md"
+    link_gstack_host_skills "$HOME/.agents/skills" "$HOME/.claude/skills" "Claude Code"
+    link_gstack_host_skills "$HOME/.agents/skills" "$HOME/.codex/skills" "Codex"
 
-        if [[ -f "$GSTACK_SRC/SKILL.md" ]]; then
-            sed -e "s|~/.claude/skills/gstack|~/forge/skills/gstack|g" \
-                -e "s|\.claude/skills/gstack|forge/skills/gstack|g" \
-                -e "s|\.claude/skills|forge/skills|g" \
-                "$GSTACK_SRC/SKILL.md" > "$forge_gstack/SKILL.md"
-        fi
-
-        for skill_dir in "$GSTACK_SRC"/*/; do
-            if [[ -f "$skill_dir/SKILL.md" ]]; then
-                local gstack_skill_name
-                gstack_skill_name="$(basename "$skill_dir")"
-                [[ "$gstack_skill_name" == "node_modules" ]] && continue
-                [[ "$gstack_skill_name" == "test" ]] && continue
-                local target="$HOME/forge/skills/$gstack_skill_name"
-                if [[ -L "$target" ]] || [[ ! -e "$target" ]]; then
-                    ln -snf "gstack/$gstack_skill_name" "$target"
-                fi
-            fi
-        done
-
-        echo "✓ gstack installed for Forge"
-    fi
+    echo "✓ gstack installed with ~/.agents/skills as the source and Claude/Codex linked to it"
 }
 
 config_ssh() {
@@ -677,8 +708,8 @@ config_forge() {
 apply_env_keys() {
     local env_file="$DOTFILES_DIR/.env"
 
+    echo ""
     if [[ ! -f "$env_file" ]]; then
-        echo ""
         echo "No .env file found at $env_file"
         echo "  To set API keys, create .env with:"
         echo "    CONTEXT7_API_KEY=your-key-here"
@@ -686,19 +717,18 @@ apply_env_keys() {
         return
     fi
 
-    echo ""
     echo "Loading API keys from .env..."
 
-    # Read CONTEXT7_API_KEY
     local ctx7_key
-    ctx7_key=$(grep -E "^CONTEXT7_API_KEY=" "$env_file" | cut -d'=' -f2- | tr -d '"' | tr -d "'")
-    if [[ -n "$ctx7_key" ]]; then
-        sed -i '' "s|\"CONTEXT7_API_KEY\": \"\"|\"CONTEXT7_API_KEY\": \"$ctx7_key\"|g" "$DOTFILES_DIR/amp/settings.json"
-        # Claude Code MCPs are registered via `claude mcp add`, not settings.json
-        sed -i '' "s|\"CONTEXT7_API_KEY\": \"\"|\"CONTEXT7_API_KEY\": \"$ctx7_key\"|g" "$DOTFILES_DIR/opencode/opencode.json"
-        sed -i '' "s|CONTEXT7_API_KEY = \"\"|CONTEXT7_API_KEY = \"$ctx7_key\"|g" "$DOTFILES_DIR/codex/config.toml"
-        echo "✓ Context7 API key set in config files"
+    ctx7_key="$(get_context7_api_key || true)"
+    if [[ -z "$ctx7_key" ]]; then
+        echo "  CONTEXT7_API_KEY is empty; managed configs will keep placeholders."
+        return
     fi
+
+    [[ -f "$DOTFILES_DIR/amp/settings.json" ]] && render_context7_config "$DOTFILES_DIR/amp/settings.json" "$HOME/.config/amp/settings.json" "Amp config" "$ctx7_key"
+    [[ -f "$DOTFILES_DIR/opencode/opencode.json" ]] && render_context7_config "$DOTFILES_DIR/opencode/opencode.json" "$HOME/.config/opencode/opencode.json" "OpenCode config" "$ctx7_key"
+    [[ -f "$DOTFILES_DIR/codex/config.toml" ]] && render_context7_config "$DOTFILES_DIR/codex/config.toml" "$HOME/.codex/config.toml" "Codex config.toml" "$ctx7_key"
 }
 
 # --- Module definitions ---
@@ -742,7 +772,7 @@ MODULE_DESCRIPTIONS=(
     "Copilot shared skills"
     "SSH config, 1Password socket"
     "Forge CLI + shared skills, zsh integration"
-    "Optional gstack install for Claude Code and Forge"
+    "Optional gstack install via ~/.agents/skills, linked to Claude Code and Codex"
 )
 
 # --- Run a module by index (0-based) ---
@@ -778,7 +808,14 @@ run_module() {
         14) config_copilot_skills ;;
         15) config_ssh ;;
         16) install_forge; config_forge ;;
-        17) install_gstack; config_gstack ;;
+        17)
+            if [[ -d "$GSTACK_SRC" ]]; then
+                install_gstack
+                config_gstack
+            else
+                echo "Skipping Gstack: optional source not found at $GSTACK_SRC"
+            fi
+            ;;
     esac
 }
 
