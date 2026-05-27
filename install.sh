@@ -144,6 +144,42 @@ link_all_skills() {
     done
 }
 
+link_skills_from_dir() {
+    local source_dir="$1"
+    local target_dir="$2"
+    local label="$3"
+
+    if [[ ! -d "$source_dir" ]]; then
+        return
+    fi
+
+    prepare_skill_dir "$target_dir"
+
+    for skill_dir in "$source_dir"/*/; do
+        if [[ -d "$skill_dir" ]]; then
+            local skill_name
+            skill_name="$(basename "$skill_dir")"
+            ensure_symlink "$skill_dir" "$target_dir/$skill_name" "$label skill: $skill_name"
+        fi
+    done
+
+    for skill_dir in "$source_dir"/.[!.]*/; do
+        if [[ -d "$skill_dir" ]]; then
+            local skill_name
+            skill_name="$(basename "$skill_dir")"
+            ensure_symlink "$skill_dir" "$target_dir/$skill_name" "$label skill: $skill_name"
+        fi
+    done
+
+    for skill_file in "$source_dir"/*.zip; do
+        if [[ -f "$skill_file" ]]; then
+            local file_name
+            file_name="$(basename "$skill_file")"
+            ensure_symlink "$skill_file" "$target_dir/$file_name" "$label asset: $file_name"
+        fi
+    done
+}
+
 link_gstack_host_skills() {
     local source_dir="$1"
     local target_dir="$2"
@@ -441,27 +477,9 @@ config_claude() {
     ensure_symlink "$DOTFILES_DIR/claude/settings.json" "$HOME/.claude/settings.json" "Claude Code settings.json"
     ensure_symlink "$DOTFILES_DIR/claude/statusline-command.sh" "$HOME/.claude/statusline-command.sh" "Claude Code statusline script"
 
-    # Link all shared skills, then overlay Claude-specific extras from ~/.agents/skills.
+    # Link all shared skills, then point Claude at every skill installed in ~/.agents/skills.
     link_all_skills "$HOME/.claude/skills" "Claude Code"
-
-    local claude_user_skills=(
-        "agentation"
-        "agentation-self-driving"
-        "brainstorming"
-        "find-skills"
-        "gstack"
-        "remotion-best-practices"
-    )
-    local skill_name
-    for skill_name in "${claude_user_skills[@]}"; do
-        if [[ -d "$HOME/.agents/skills/$skill_name" ]]; then
-            ensure_symlink "$HOME/.agents/skills/$skill_name" "$HOME/.claude/skills/$skill_name" "Claude Code skill: $skill_name"
-        fi
-    done
-
-    if [[ -d "$HOME/.agents/skills/gstack" ]]; then
-        link_gstack_host_skills "$HOME/.agents/skills" "$HOME/.claude/skills" "Claude Code"
-    fi
+    link_skills_from_dir "$HOME/.agents/skills" "$HOME/.claude/skills" "Claude Code"
 
     # Claude Code agents
     if [[ -d "$DOTFILES_DIR/claude/agents" ]]; then

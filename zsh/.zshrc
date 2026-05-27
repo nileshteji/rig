@@ -35,7 +35,7 @@ export CHROME_EXECUTABLE="/Applications/Dia.app/Contents/MacOS/Dia"
 export PATH="$HOME/.local/bin:$PATH"
 export PATH="$PATH:/Users/nileshteji/Library/Android/sdk/emulator"
 export PATH="/Users/nileshteji/.amp/bin:$PATH"
-export PATH="/opt/homebrew/opt/openjdk@17/bin:$PATH"
+#export PATH="/opt/homebrew/opt/openjdk@17/bin:$PATH"
 export PATH="/opt/homebrew/opt/postgresql@15/bin:$PATH"
 export SSH_AUTH_SOCK="$HOME/.1password/agent.sock"
 
@@ -45,8 +45,17 @@ export PATH="$BUN_INSTALL/bin:$PATH"
 
 # opencode
 export PATH=/Users/nileshteji/.opencode/bin:$PATH
-export PATH="/opt/homebrew/opt/openjdk@17/bin:$PATH"
+# Have JAVA_HOME set by JEnv for us...
+
+
+
+#jenv
 export PATH="$HOME/.jenv/bin:$PATH"
+eval "$(jenv init -)"
+export JAVA_HOME="$(jenv prefix)"
+
+
+
 export TERM=xterm-256color
 
 # Google Workspace CLI credentials
@@ -76,4 +85,5 @@ fi
 
 # bun completions
 [ -s "/Users/nilesh/.bun/_bun" ] && source "/Users/nilesh/.bun/_bun"
+
 
