@@ -20,6 +20,18 @@ alias gaa="git add -A"
 alias gd="git diff"
 alias gds="git diff --staged"
 alias gl="git log --oneline --graph --decorate"
+
+# Make `git show <commit>` behave like cat for small output, use less for large
+# output, and show useful diffs for merge commits instead of opening Vim.
+git() {
+    if [[ "$1" == "show" ]]; then
+        shift
+        command git -c pager.show="less -FRX" show --diff-merges=first-parent --patch "$@"
+    else
+        command git "$@"
+    fi
+}
+
 alias gpl="git pull"
 alias gp="git push origin"
 alias gpf="git push --force-with-lease"
@@ -85,5 +97,3 @@ fi
 
 # bun completions
 [ -s "/Users/nilesh/.bun/_bun" ] && source "/Users/nilesh/.bun/_bun"
-
-
