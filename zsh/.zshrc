@@ -1,6 +1,6 @@
 export ZSH="$HOME/.oh-my-zsh"
-ZSH_THEME="robbyrussell"
-plugins=(git)
+ZSH_THEME="lite-samurai"
+plugins=(git git-prompt)
 
 if [[ -f "$ZSH/oh-my-zsh.sh" ]]; then
     source "$ZSH/oh-my-zsh.sh"
@@ -45,8 +45,8 @@ export LANG=en_US.UTF-8
 export LC_ALL=en_US.UTF-8
 export CHROME_EXECUTABLE="/Applications/Dia.app/Contents/MacOS/Dia"
 export PATH="$HOME/.local/bin:$PATH"
-export PATH="$PATH:/Users/nileshteji/Library/Android/sdk/emulator"
-export PATH="/Users/nileshteji/.amp/bin:$PATH"
+export PATH="$PATH:$HOME/Library/Android/sdk/emulator"
+export PATH="$HOME/.amp/bin:$PATH"
 #export PATH="/opt/homebrew/opt/openjdk@17/bin:$PATH"
 export PATH="/opt/homebrew/opt/postgresql@15/bin:$PATH"
 export SSH_AUTH_SOCK="$HOME/.1password/agent.sock"
@@ -56,7 +56,7 @@ export BUN_INSTALL="$HOME/.bun"
 export PATH="$BUN_INSTALL/bin:$PATH"
 
 # opencode
-export PATH=/Users/nileshteji/.opencode/bin:$PATH
+export PATH="$HOME/.opencode/bin:$PATH"
 # Have JAVA_HOME set by JEnv for us...
 
 
@@ -96,4 +96,4 @@ if [[ -n "$DOTFILES_ZSH_DIR" && -f "$DOTFILES_ZSH_DIR/.zshrc.local" ]]; then
 fi
 
 # bun completions
-[ -s "/Users/nilesh/.bun/_bun" ] && source "/Users/nilesh/.bun/_bun"
+[ -s "$HOME/.bun/_bun" ] && source "$HOME/.bun/_bun"

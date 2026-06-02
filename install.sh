@@ -1,8 +1,9 @@
 #!/bin/bash
 
 # Dotfiles installation script - interactive module installer
-# Usage: ./install.sh        (interactive menu)
-#        ./install.sh --all  (install everything, non-interactive)
+# Usage: ./install.sh           (interactive menu)
+#        ./install.sh --default (install standard setup, excludes optional gstack)
+#        ./install.sh --all     (install everything, non-interactive)
 
 set -e
 
@@ -11,8 +12,17 @@ DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # --- Initialize git submodules (skills repo + gstack) ---
 
 echo "Initializing submodules..."
-(cd "$DOTFILES_DIR" && git submodule update --init --recursive)
-echo "✓ Submodules initialized"
+if (cd "$DOTFILES_DIR" && git submodule update --init --recursive); then
+    echo "✓ Submodules initialized"
+else
+    echo "  SSH submodule init failed, retrying shared skills over HTTPS..."
+    (
+        cd "$DOTFILES_DIR" && \
+        git -c submodule.skills.url="https://github.com/nileshteji/skills.git" \
+            submodule update --init --recursive
+    )
+    echo "✓ Submodules initialized"
+fi
 
 GSTACK_SRC="$DOTFILES_DIR/skills/gstack"
 SKILLS_SRC="$DOTFILES_DIR/skills"
@@ -216,6 +226,15 @@ install_homebrew() {
         echo "✓ Node.js already installed"
     fi
 
+    # Install Python (used for local config templating)
+    if ! command -v python3 &> /dev/null; then
+        echo "Installing Python..."
+        brew install python
+        echo "✓ Python installed"
+    else
+        echo "✓ Python already installed"
+    fi
+
     # Install gum for interactive menu
     if ! command -v gum &> /dev/null; then
         echo "Installing gum (interactive menu)..."
@@ -264,6 +283,14 @@ install_shell() {
 config_shell() {
     echo "Setting up zsh config..."
     ensure_symlink "$DOTFILES_DIR/zsh/.zshrc" "$HOME/.zshrc" "zshrc"
+
+    if [[ -d "$HOME/.oh-my-zsh" ]]; then
+        mkdir -p "$HOME/.oh-my-zsh/custom/themes"
+        ensure_symlink \
+            "$DOTFILES_DIR/zsh/themes/lite-samurai.zsh-theme" \
+            "$HOME/.oh-my-zsh/custom/themes/lite-samurai.zsh-theme" \
+            "Oh My Zsh theme: lite-samurai"
+    fi
 }
 
 install_neovim() {
@@ -517,6 +544,22 @@ config_claude() {
     echo "✓ Claude Desktop config symlinked to $CLAUDE_DESKTOP_CONFIG_DIR/claude_desktop_config.json"
 }
 
+install_ghostty_font() {
+    if [[ "$OSTYPE" != "darwin"* ]]; then
+        echo "  Skipping JetBrains Mono Nerd Font install on non-macOS"
+        return
+    fi
+
+    if brew list --cask font-jetbrains-mono-nerd-font &> /dev/null; then
+        echo "✓ JetBrains Mono Nerd Font already installed"
+    else
+        echo "Installing JetBrains Mono Nerd Font..."
+        brew tap homebrew/cask-fonts >/dev/null 2>&1 || true
+        brew install --cask font-jetbrains-mono-nerd-font
+        echo "✓ JetBrains Mono Nerd Font installed"
+    fi
+}
+
 install_terminal() {
     if command -v ghostty &> /dev/null; then
         echo "✓ Ghostty already installed"
@@ -527,6 +570,8 @@ install_terminal() {
         brew install --cask ghostty
         echo "✓ Ghostty installed"
     fi
+
+    install_ghostty_font
 }
 
 config_terminal() {
@@ -1032,7 +1077,26 @@ interactive_menu() {
 
 # --- Main ---
 
-if [[ "$1" == "--all" ]]; then
+if [[ "$1" == "--default" ]]; then
+    echo "Setting up dotfiles from: $DOTFILES_DIR"
+    echo ""
+
+    install_homebrew
+
+    for i in $(seq 0 $((${#MODULE_NAMES[@]} - 2))); do
+        run_module "$i"
+    done
+
+    apply_env_keys
+
+    echo ""
+    echo "Next steps:"
+    echo "  1. Run 'source ~/.zshrc'"
+    echo "  2. If credentials were not copied, run 'gcloud auth login'"
+    echo "  3. Then run 'gws auth setup' and 'gws auth login'"
+    echo ""
+    echo "✓ Standard dotfiles installed successfully!"
+elif [[ "$1" == "--all" ]]; then
     echo "Setting up dotfiles from: $DOTFILES_DIR"
     echo ""
 

@@ -12,7 +12,7 @@
 
 <br>
 
-*Opinionated macOS setup with Neovim, Tmux, Ghostty, AI coding tools, and an interactive installer that lets you pick exactly what you want.*
+*Opinionated macOS setup with Neovim, Tmux, Ghostty, AI coding tools, and a one-command bootstrap for new laptops.*
 
 ---
 
@@ -23,32 +23,41 @@
 ```bash
 git clone https://github.com/nileshteji/rig.git ~/rig
 cd ~/rig
-./install.sh
+make
 ```
 
-That's it. The installer walks you through everything.
+That installs the standard setup from this repo, including the custom `lite-samurai` Zsh theme and the `JetBrainsMonoNerdFont` Ghostty font.
+
+Need the interactive module picker instead? Run `./install.sh`.
+Need the full install including optional gstack? Run `./install.sh --all`.
 
 <br>
 
 ## How It Works
 
-The installer gives you a **interactive menu** powered by [gum](https://github.com/charmbracelet/gum) — use arrow keys to navigate, spacebar to toggle, enter to confirm:
+`make` runs `./install.sh --default`, which installs the standard setup and skips optional gstack.
+
+If you want to customize modules, the installer gives you a **interactive menu** powered by [gum](https://github.com/charmbracelet/gum) — use arrow keys to navigate, spacebar to toggle, enter to confirm:
 
 ```
   [x]  1. Shell              (Oh My Zsh + .zshrc)
   [x]  2. Neovim             (neovim + config)
-  [x]  3. Tmux               (tmux + config)
-  [x]  4. Git Tools          (lazygit)
-  [x]  5. Amp                (Amp + config)
-  [x]  6. Codex              (Codex + config, skills, agents)
-  [x]  7. OpenCode           (OpenCode + config)
-  [x]  8. Claude             (Claude Code, Cursor, Claude Desktop + configs)
-  [x]  9. Pi                 (Pi + specialist skills)
-  [x] 10. Terminal           (Ghostty + config)
-  [x] 11. Google Cloud       (GWS CLI, gcloud + credentials)
-  [x] 12. Agentation         (Agentation MCP + skills for AI tools)
-  [x] 13. SSH & Security     (SSH config, 1Password socket)
-  [ ] 14. Gstack             (Optional gstack install for Claude Code and Forge)
+  [x]  3. Vim                (vim + config)
+  [x]  4. Tmux               (tmux + config)
+  [x]  5. Git Tools          (lazygit)
+  [x]  6. Amp                (Amp + config)
+  [x]  7. Codex              (Codex + config, agents, shared skills)
+  [x]  8. OpenCode           (OpenCode + config)
+  [x]  9. Claude             (Claude Code, Claude Desktop + configs, shared skills)
+  [x] 10. Pi                 (Pi + shared skills)
+  [x] 11. Cursor             (Cursor IDE)
+  [x] 12. Terminal           (Ghostty + config)
+  [x] 13. Google Cloud       (GWS CLI, gcloud + credentials)
+  [x] 14. Agentation         (Agentation MCP for AI tools)
+  [x] 15. Copilot            (Copilot shared skills)
+  [x] 16. SSH & Security     (SSH config, 1Password socket)
+  [x] 17. Forge              (Forge CLI + shared skills, zsh integration)
+  [ ] 18. Gstack             (Optional gstack install via ~/.agents/skills)
 ```
 
 > **No gum?** No problem. Falls back to a number-based menu where you type `1,3,5` or `1-4` to toggle.
@@ -67,10 +76,10 @@ The installer gives you a **interactive menu** powered by [gum](https://github.c
 
 | Module | What you get |
 |--------|-------------|
-| **Shell** | Zsh + Oh My Zsh + git aliases |
+| **Shell** | Zsh + Oh My Zsh + `lite-samurai` theme + git aliases |
 | **Neovim** | Lazy.nvim, LSP, Telescope, Harpoon, Treesitter, Gruvbox |
 | **Tmux** | `C-a` prefix, minimal dark status bar |
-| **Ghostty** | JetBrainsMono Nerd Font, tabbed titlebar |
+| **Ghostty** | Catppuccin Latte + JetBrainsMono Nerd Font |
 | **Git Tools** | Lazygit TUI |
 
 </td>
@@ -101,6 +110,7 @@ The installer gives you a **interactive menu** powered by [gum](https://github.c
 ```
 rig/
   zsh/                .zshrc with git aliases, PATH setup
+    themes/           Custom Oh My Zsh themes
     .zshrc.local      Machine-specific secrets (gitignored)
   nvim/               Neovim config
     lua/nilesh/       Core modules (init, lazy, remap, set)
@@ -117,7 +127,8 @@ rig/
   gws/                Google Workspace CLI setup
   iterm/              iTerm2 color preset (legacy)
   .env.example        Template for API keys
-  install.sh          Interactive installer
+  install.sh          Interactive + non-interactive installer
+  Makefile            One-command standard bootstrap (`make`)
 ```
 
 </details>

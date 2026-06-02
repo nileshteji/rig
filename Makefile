@@ -28,8 +28,8 @@ endef
 
 all: install
 
-install: homebrew git python zsh nvim ghostty vscode amp pi claude codex skills configs
-	@echo "✓ Requested tools and dotfiles installed"
+install:
+	@bash ./install.sh --default
 
 homebrew:
 	@if ! command -v brew >/dev/null 2>&1; then \
