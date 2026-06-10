@@ -1,0 +1,18 @@
+#:schema https://conductor.build/schemas/settings.repo.schema.json
+
+[scripts]
+# Initialize the skills submodule (same HTTPS fallback as install.sh).
+# Do NOT run `./install.sh` or `make install` here — they symlink configs
+# from the worktree into $HOME, which would repoint live machine configs
+# at a temporary workspace.
+setup = "git submodule update --init --recursive || git -c submodule.skills.url=https://github.com/nileshteji/skills.git submodule update --init --recursive"
+
+# Non-destructive smoke checks: syntax-check the installers and zsh config,
+# then `make check` (read-only tool version report).
+run = "bash -n install.sh && bash -n removal.sh && bash -n agentation/install.sh && zsh -n zsh/.zshrc && make check"
+
+# Remove backup artifacts the installer helpers may have left in the worktree.
+archive = "find . -name '*.backup.*' -not -path './.git/*' -delete || true"
+
+# Checks are read-only, so parallel workspaces are safe.
+run_mode = "concurrent"
