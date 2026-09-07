@@ -273,3 +273,7 @@ vim.lsp.enable('tsserver')
 Made by [Nilesh Teji](https://github.com/nileshteji)
 
 </div>
+
+## Westeros agent team
+
+`/westeros <task>` in Claude Code runs a Game of Thrones themed agent team (Daenerys scouts, Tyrion plans, Arya builds, Bran validates, with Tywin, Samwell and Sansa on call) and opens a real-time battlefield dashboard at http://localhost:7777 where Jon Snow hands out quests and strikes down riders whose work is done. The skill lives in `claude/skills/westeros`, the dashboard in `claude/westeros`, the agents in `claude/agents`. Requires Node and `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1` (set in `claude/settings.json`). Add `?demo=1` to the URL for a staged battle.

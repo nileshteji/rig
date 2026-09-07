@@ -8,3 +8,6 @@ zsh/.zshrc.local
 .gstack/
 
 .claude/worktrees/
+
+claude/westeros/events.jsonl
+claude/westeros/server.log

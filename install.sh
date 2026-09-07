@@ -578,6 +578,21 @@ config_claude() {
         ensure_symlink "$DOTFILES_DIR/claude/agents" "$HOME/.claude/agents" "Claude Code agents"
     fi
 
+    # Claude-only skills kept in this repo (not in the shared skills submodule)
+    if [[ -d "$DOTFILES_DIR/claude/skills" ]]; then
+        mkdir -p "$HOME/.claude/skills"
+        for skill_dir in "$DOTFILES_DIR"/claude/skills/*/; do
+            [[ -d "$skill_dir" ]] || continue
+            skill_name="$(basename "$skill_dir")"
+            ensure_symlink "${skill_dir%/}" "$HOME/.claude/skills/$skill_name" "Claude Code skill: $skill_name"
+        done
+    fi
+
+    # Westeros agent-team battlefield dashboard
+    if [[ -d "$DOTFILES_DIR/claude/westeros" ]]; then
+        ensure_symlink "$DOTFILES_DIR/claude/westeros" "$HOME/.claude/westeros" "Westeros battlefield dashboard"
+    fi
+
     # Claude Code MCP servers
     echo "Setting up Claude Code MCP servers..."
     if command -v claude &> /dev/null; then
