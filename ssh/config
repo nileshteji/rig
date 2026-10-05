@@ -12,6 +12,11 @@ Host bitbucket
     IdentityAgent "~/.1password/agent.sock"
     IdentitiesOnly yes
     IdentityFile ~/.ssh/work-ssh
+Host workbox
+    HostName 192.168.0.165
+    User nilesh
+    PreferredAuthentications password
+    PubkeyAuthentication no
 Host *
     IdentityAgent "~/.1password/agent.sock"
     IdentitiesOnly no

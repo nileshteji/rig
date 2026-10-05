@@ -162,6 +162,18 @@ link_all_skills() {
     done
 }
 
+config_default_agent_skills() {
+    echo "Setting up default agent skills..."
+    mkdir -p "$HOME/.agents/skills"
+
+    if [[ -d "$SKILLS_SRC/test-audit" ]]; then
+        ensure_symlink \
+            "$SKILLS_SRC/test-audit" \
+            "$HOME/.agents/skills/test-audit" \
+            "Default agent skill: test-audit"
+    fi
+}
+
 link_skills_from_dir() {
     local source_dir="$1"
     local target_dir="$2"
@@ -1154,6 +1166,7 @@ if [[ "$1" == "--default" ]]; then
     echo ""
 
     install_homebrew
+    config_default_agent_skills
 
     for i in $(seq 0 $((${#MODULE_NAMES[@]} - 2))); do
         run_module "$i"
@@ -1173,6 +1186,7 @@ elif [[ "$1" == "--all" ]]; then
     echo ""
 
     install_homebrew
+    config_default_agent_skills
 
     for i in $(seq 0 $((${#MODULE_NAMES[@]} - 1))); do
         run_module "$i"
@@ -1189,5 +1203,6 @@ elif [[ "$1" == "--all" ]]; then
     echo "✓ All dotfiles installed successfully!"
 else
     install_homebrew
+    config_default_agent_skills
     interactive_menu
 fi

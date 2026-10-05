@@ -6,29 +6,28 @@
   # View options: ghostty +show-config --default --docs
 
   # --- Typography ---
-  font-family = JetBrainsMonoNerdFont
-  font-size = 11
-  font-thicken = true
+  font-family = MonoLisaCode Trial
+  font-size = 16
+  font-thicken = false
   adjust-cell-height = 2
 
   # --- Theme and Colors ---
-# Catppuccin with automatic light/dark switching
-  #theme = light:Catppuccin Latte,dark:Catppuccin Mocha
-#theme = Catppuccin Latte
+  theme =dark:Ghostty Default Style Dark,light:iTerm2 Light Background	
+
 # --- Window and Appearance ---
-  unfocused-split-opacity = 0.25
- # background-opacity = 0.9
+
+ #background-opacity = 0.9
  # background-blur-radius = 20
- macos-titlebar-style = transparent
+#  macos-titlebar-style = transparent
   window-padding-x = 10
   window-padding-y = 8
   window-save-state = always
   window-theme = auto
 
   # --- Cursor ---
-  cursor-style = bar
-  cursor-style-blink = true
-  cursor-opacity = 0.8
+  cursor-style = block
+  cursor-style-blink = false
+  cursor-opacity = 1
 
   # --- Mouse ---
   mouse-hide-while-typing = true

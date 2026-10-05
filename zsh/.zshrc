@@ -45,7 +45,8 @@ export LANG=en_US.UTF-8
 export LC_ALL=en_US.UTF-8
 export CHROME_EXECUTABLE="/Applications/Dia.app/Contents/MacOS/Dia"
 export PATH="$HOME/.local/bin:$PATH"
-export PATH="$PATH:$HOME/Library/Android/sdk/emulator"
+export ANDROID_HOME="$HOME/Library/Android/sdk"
+export PATH="$PATH:$ANDROID_HOME/emulator"
 export PATH="$HOME/.amp/bin:$PATH"
 #export PATH="/opt/homebrew/opt/openjdk@17/bin:$PATH"
 export PATH="/opt/homebrew/opt/postgresql@15/bin:$PATH"
@@ -97,3 +98,7 @@ fi
 
 # bun completions
 [ -s "$HOME/.bun/_bun" ] && source "$HOME/.bun/_bun"
+export PATH=$PATH:$HOME/.maestro/bin
+
+# Added by cua-driver-rs installer — see https://github.com/trycua/cua
+export PATH="/Users/nileshteji/.local/bin:$PATH"

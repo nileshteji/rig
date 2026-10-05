@@ -35,7 +35,7 @@ Need the full install including optional gstack? Run `./install.sh --all`.
 
 ## How It Works
 
-`make` runs `./install.sh --default`, which installs the standard setup and skips optional gstack.
+`make` runs `./install.sh --default`, which installs the standard setup, exposes `test-audit` globally from `~/.agents/skills`, and skips optional gstack.
 
 If you want to customize modules, the installer gives you a **interactive menu** powered by [gum](https://github.com/charmbracelet/gum) — use arrow keys to navigate, spacebar to toggle, enter to confirm:
 
@@ -124,6 +124,7 @@ rig/
   claude/             Claude Code settings, statusline, agents, skills
   claude-desktop/     Claude Desktop config
   pi/                 Pi global AGENTS.md and specialist skills
+  skills/             Shared skills, including the global test-audit default
   gws/                Google Workspace CLI setup
   iterm/              iTerm2 color preset (legacy)
   .env.example        Template for API keys
