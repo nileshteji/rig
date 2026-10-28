@@ -1,0 +1,7 @@
+# Extensions from mitsuhiko/agent-stuff not loaded by Pi.
+extensions/no-sleep.ts
+extensions/trust-github-repos.ts
+extensions/btw.ts
+extensions/goal.ts
+extensions/notify.ts
+extensions/prompt-editor.ts

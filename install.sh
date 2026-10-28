@@ -533,6 +533,37 @@ install_pi_extensions() {
     done
 }
 
+config_pi_extension_exclusions() {
+    local exclusions_file="$DOTFILES_DIR/pi/extensions/disabled-agent-stuff.txt"
+    local settings_file="$HOME/.pi/agent/settings.json"
+
+    [[ -f "$exclusions_file" && -f "$settings_file" ]] || return 0
+
+    node - "$settings_file" "$exclusions_file" <<'NODE'
+const fs = require('node:fs');
+const [settingsPath, exclusionsPath] = process.argv.slice(2);
+const settings = JSON.parse(fs.readFileSync(settingsPath, 'utf8'));
+const packages = settings.packages ?? [];
+const index = packages.findIndex((entry) => {
+    const source = typeof entry === 'string' ? entry : entry.source;
+    return source === 'git:github.com/mitsuhiko/agent-stuff';
+});
+if (index !== -1) {
+    const entry = packages[index];
+    const packageConfig = typeof entry === 'string' ? { source: entry } : entry;
+    const excluded = fs.readFileSync(exclusionsPath, 'utf8').split(/\r?\n/)
+        .map((name) => name.trim()).filter((name) => name && !name.startsWith('#'));
+    const extensions = packageConfig.extensions ?? [];
+    packageConfig.extensions = [
+        ...extensions.filter((path) => !excluded.includes(path.replace(/^\+/, ''))),
+        ...excluded.map((path) => `-${path}`).filter((path) => !extensions.includes(path)),
+    ];
+    packages[index] = packageConfig;
+    fs.writeFileSync(settingsPath, `${JSON.stringify(settings, null, 2)}\n`);
+}
+NODE
+}
+
 config_pi() {
     echo "Setting up Pi config..."
     mkdir -p "$HOME/.pi/agent"
@@ -545,6 +576,8 @@ config_pi() {
 
     # Repair stale installs where ~/.pi/agent/skills was a file or symlink.
     prepare_skill_dir "$pi_skills_dir"
+
+    config_pi_extension_exclusions
 
     # Pi already discovers ~/.agents/skills. Skip overlapping skills there to avoid name-collision warnings.
     for skill_dir in "$SKILLS_SRC"/*/; do

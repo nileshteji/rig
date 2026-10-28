@@ -34,6 +34,13 @@ To remove an extension:
 
 - **pi-auto-theme**: Automatically switches between light and dark themes based on your system's appearance settings.
 
+## Agent-stuff exclusions
+
+`disabled-agent-stuff.txt` lists extensions to exclude when the optional
+`mitsuhiko/agent-stuff` package is already installed. The Pi installer updates
+its entry in `~/.pi/agent/settings.json` without removing the package or its
+other extensions. Reload Pi after running the installer.
+
 ## Notes
 
 - Extensions run with full system access. Only install from sources you trust.
