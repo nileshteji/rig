@@ -26,7 +26,7 @@ cd ~/rig
 make
 ```
 
-That installs the standard setup from this repo, including Fish as the default login shell with its config and lite-samurai prompt, and the `JetBrainsMonoNerdFont` Ghostty font.
+That installs the standard setup from this repo, including Fish as the default login shell with its config and the pure prompt, and the `JetBrainsMonoNerdFont` Ghostty font.
 
 Need the interactive module picker instead? Run `./install.sh`.
 Need the full install including optional gstack? Run `./install.sh --all`.
@@ -40,7 +40,7 @@ Need the full install including optional gstack? Run `./install.sh --all`.
 If you want to customize modules, the installer gives you a **interactive menu** powered by [gum](https://github.com/charmbracelet/gum) — use arrow keys to navigate, spacebar to toggle, enter to confirm:
 
 ```
-  [x]  1. Shell              (Fish default shell + config, lite-samurai prompt)
+  [x]  1. Shell              (Fish default shell + config, pure prompt)
   [x]  2. Neovim             (neovim + config)
   [x]  3. Vim                (vim + config)
   [x]  4. Tmux               (tmux + config)
@@ -76,7 +76,7 @@ If you want to customize modules, the installer gives you a **interactive menu**
 
 | Module | What you get |
 |--------|-------------|
-| **Shell** | Fish as the default shell with `fish/config.fish` and the lite-samurai prompt (Zsh config kept in `zsh/` but no longer installed) |
+| **Shell** | Fish as the default shell with `fish/config.fish` and the pure prompt via fisher (Zsh config kept in `zsh/` but no longer installed) |
 | **Neovim** | Lazy.nvim, LSP, Telescope, Harpoon, Treesitter, Gruvbox |
 | **Tmux** | `C-a` prefix, minimal dark status bar |
 | **Ghostty** | Catppuccin Latte + JetBrainsMono Nerd Font |

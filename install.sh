@@ -308,11 +308,6 @@ config_shell() {
 
     ensure_symlink "$DOTFILES_DIR/fish/config.fish" "$fish_dir/config.fish" "fish config"
 
-    local fn
-    for fn in "$DOTFILES_DIR"/fish/functions/*.fish; do
-        ensure_symlink "$fn" "$fish_dir/functions/$(basename "$fn")" "fish function $(basename "$fn" .fish)"
-    done
-
     # Secrets and machine-specific aliases (git-ignored; copy it over manually)
     if [[ -f "$DOTFILES_DIR/fish/config.local.fish" ]]; then
         ensure_symlink "$DOTFILES_DIR/fish/config.local.fish" "$fish_dir/conf.d/local.fish" "fish local config"
@@ -320,10 +315,17 @@ config_shell() {
         echo "  No fish/config.local.fish found; copy it from your other machine for secrets and server aliases"
     fi
 
-    # The lite-samurai prompt replaces pure; remove it if a previous fisher setup installed it
-    if command -v fish &> /dev/null && fish -c 'functions -q fisher; and contains pure-fish/pure $_fisher_plugins' 2>/dev/null; then
-        fish -c 'fisher remove pure-fish/pure' >/dev/null 2>&1 || true
-        echo "✓ Removed pure prompt plugin"
+    # Plugins (fisher + pure prompt) are listed in fish/fish_plugins
+    ensure_symlink "$DOTFILES_DIR/fish/fish_plugins" "$fish_dir/fish_plugins" "fish plugin list"
+    if command -v fish &> /dev/null; then
+        echo "Installing Fish plugins (fisher, pure)..."
+        if ! fish -c 'functions -q fisher'; then
+            fish -c 'curl -sL https://raw.githubusercontent.com/jorgebucaran/fisher/main/functions/fisher.fish | source; and fisher update' </dev/null \
+                || echo "  Could not install fisher; run 'fisher update' in fish later"
+        else
+            fish -c 'fisher update' </dev/null || echo "  'fisher update' failed; re-run it in fish"
+        fi
+        echo "✓ Fish plugins installed"
     fi
 }
 
@@ -949,7 +951,7 @@ MODULE_NAMES=(
 )
 
 MODULE_DESCRIPTIONS=(
-    "Fish default shell + config (lite-samurai prompt)"
+    "Fish default shell + config (pure prompt)"
     "neovim + config"
     "vim + config (merged keybindings)"
     "tmux + config"

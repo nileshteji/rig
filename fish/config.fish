@@ -36,10 +36,7 @@ if type -q jenv; and not set -q JENV_LOADED
     set -gx JAVA_HOME (jenv prefix 2>/dev/null)
 end
 
-# --- lite-samurai theme (prompt: functions/fish_prompt.fish) ---
-set -gx LSCOLORS ExGxFxDxCxHxHxCbCeEbEb
-set -gx CLICOLOR 1
-set -g fish_greeting
+# Prompt: pure (pure-fish/pure via fisher, see fish/fish_plugins)
 
 if status is-interactive
     abbr -a lspci system_profiler SPUSBDataType
