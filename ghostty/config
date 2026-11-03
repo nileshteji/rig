@@ -6,13 +6,12 @@
   # View options: ghostty +show-config --default --docs
 
   # --- Typography ---
-  font-family = MonoLisaCode Trial
-  font-size = 16
+  font-size = 14
   font-thicken = false
   adjust-cell-height = 2
 
   # --- Theme and Colors ---
-  theme =dark:Ghostty Default Style Dark,light:iTerm2 Light Background	
+
 
 # --- Window and Appearance ---
 

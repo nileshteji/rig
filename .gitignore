@@ -8,3 +8,4 @@ zsh/.zshrc.local
 .gstack/
 
 .claude/worktrees/
+fish/config.local.fish

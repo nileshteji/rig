@@ -90,7 +90,7 @@ for gcloud_sdk_root in "/opt/homebrew/share/google-cloud-sdk" "/usr/local/share/
     fi
 done
 
-# Load machine-specific secrets (zsh/.zshrc.local in dotfiles)
+# Load machine-specific aliases and exports
 DOTFILES_ZSH_DIR="$(dirname "$(readlink -f "${(%):-%x}")" 2>/dev/null)"
 if [[ -n "$DOTFILES_ZSH_DIR" && -f "$DOTFILES_ZSH_DIR/.zshrc.local" ]]; then
     source "$DOTFILES_ZSH_DIR/.zshrc.local"

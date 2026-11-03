@@ -8,7 +8,7 @@
 [![Neovim](https://img.shields.io/badge/neovim-%2357A143.svg?style=for-the-badge&logo=neovim&logoColor=white)](https://neovim.io/)
 [![Lua](https://img.shields.io/badge/lua-%232C2D72.svg?style=for-the-badge&logo=lua&logoColor=white)](https://www.lua.org/)
 [![Tmux](https://img.shields.io/badge/tmux-1BB91F?style=for-the-badge&logo=tmux&logoColor=white)](https://github.com/tmux/tmux)
-[![Shell](https://img.shields.io/badge/shell-%23121011.svg?style=for-the-badge&logo=gnu-bash&logoColor=white)](https://www.zsh.org/)
+[![Shell](https://img.shields.io/badge/shell-Fish-34C534?style=for-the-badge&logo=gnubash&logoColor=white)](https://fishshell.com/)
 
 <br>
 
@@ -26,7 +26,7 @@ cd ~/rig
 make
 ```
 
-That installs the standard setup from this repo, including the custom `lite-samurai` Zsh theme and the `JetBrainsMonoNerdFont` Ghostty font.
+That installs the standard setup from this repo, including Fish as the default login shell with its config and lite-samurai prompt, and the `JetBrainsMonoNerdFont` Ghostty font.
 
 Need the interactive module picker instead? Run `./install.sh`.
 Need the full install including optional gstack? Run `./install.sh --all`.
@@ -40,7 +40,7 @@ Need the full install including optional gstack? Run `./install.sh --all`.
 If you want to customize modules, the installer gives you a **interactive menu** powered by [gum](https://github.com/charmbracelet/gum) — use arrow keys to navigate, spacebar to toggle, enter to confirm:
 
 ```
-  [x]  1. Shell              (Oh My Zsh + .zshrc)
+  [x]  1. Shell              (Fish default shell + config, lite-samurai prompt)
   [x]  2. Neovim             (neovim + config)
   [x]  3. Vim                (vim + config)
   [x]  4. Tmux               (tmux + config)
@@ -76,7 +76,7 @@ If you want to customize modules, the installer gives you a **interactive menu**
 
 | Module | What you get |
 |--------|-------------|
-| **Shell** | Zsh + Oh My Zsh + `lite-samurai` theme + git aliases |
+| **Shell** | Fish as the default shell with `fish/config.fish` and the lite-samurai prompt (Zsh config kept in `zsh/` but no longer installed) |
 | **Neovim** | Lazy.nvim, LSP, Telescope, Harpoon, Treesitter, Gruvbox |
 | **Tmux** | `C-a` prefix, minimal dark status bar |
 | **Ghostty** | Catppuccin Latte + JetBrainsMono Nerd Font |
@@ -109,9 +109,9 @@ If you want to customize modules, the installer gives you a **interactive menu**
 
 ```
 rig/
-  zsh/                .zshrc with git aliases, PATH setup
+  zsh/                Zsh config and Oh My Zsh theme
     themes/           Custom Oh My Zsh themes
-    .zshrc.local      Machine-specific secrets (gitignored)
+    .zshrc.local      Machine-specific aliases and exports (gitignored)
   nvim/               Neovim config
     lua/nilesh/       Core modules (init, lazy, remap, set)
     after/            Filetype-specific settings
@@ -143,7 +143,8 @@ rig/
 | File | Contents | How it's used |
 |------|----------|---------------|
 | `.env` | API keys (e.g. `CONTEXT7_API_KEY=...`) | `install.sh` injects into AI tool configs |
-| `zsh/.zshrc.local` | SSH aliases, DB passwords, exports | Sourced at the end of `.zshrc` |
+| `zsh/.zshrc.local` | SSH aliases, DB passwords, exports | Sourced by the optional Zsh configuration; Fish remains uncustomized |
+| `fish/config.local.fish` | SSH aliases, DB passwords, exports | Symlinked to `~/.config/fish/conf.d/local.fish`; copy it to each new machine |
 
 **Setup:**
 
@@ -255,7 +256,7 @@ vim.lsp.enable('tsserver')
 
 | Requirement | Why |
 |-------------|-----|
-| **macOS** | Homebrew-based installer |
+| **macOS** | Homebrew-based installer and login-shell registration |
 | [**JetBrainsMono Nerd Font**](https://www.nerdfonts.com/) | Icons in Neovim + Ghostty |
 | [**1Password**](https://1password.com/) | SSH agent integration |
 

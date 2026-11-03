@@ -264,52 +264,66 @@ install_homebrew() {
 }
 
 install_shell() {
-    if ! command -v zsh &> /dev/null; then
-        echo "Installing zsh..."
-        brew install zsh
-        echo "✓ zsh installed"
+    if ! command -v fish &> /dev/null; then
+        echo "Installing Fish..."
+        brew install fish
+        echo "✓ Fish installed"
     else
-        echo "✓ zsh already installed"
+        echo "✓ Fish already installed"
     fi
 
-    if [[ ! -d "$HOME/.oh-my-zsh" ]]; then
-        echo "Installing Oh My Zsh..."
-        sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
-        echo "✓ Oh My Zsh installed"
-    else
-        echo "✓ Oh My Zsh already installed"
+    local fish_path
+    fish_path="$(command -v fish)"
+
+    if ! grep -qx "$fish_path" /etc/shells; then
+        echo "Registering Fish as an approved login shell..."
+        if sudo sh -c "printf '%s\\n' '$fish_path' >> /etc/shells"; then
+            echo "✓ Fish registered in /etc/shells"
+        else
+            echo "  Fish is installed at $fish_path but could not be added to /etc/shells"
+            echo "  Run: sudo sh -c \"printf '%s\\n' '$fish_path' >> /etc/shells\""
+            return
+        fi
     fi
 
-    local zsh_path
-    if [[ -x "/bin/zsh" ]]; then
-        zsh_path="/bin/zsh"
+    local current_shell
+    current_shell="$(dscl . -read "/Users/$USER" UserShell 2>/dev/null | awk '{print $2}')"
+    if [[ "$current_shell" == "$fish_path" ]]; then
+        echo "✓ Fish already set as default shell"
     else
-        zsh_path="$(command -v zsh)"
-    fi
-
-    if [[ "$SHELL" == "$zsh_path" ]]; then
-        echo "✓ zsh already set as default shell"
-    elif grep -qx "$zsh_path" /etc/shells; then
-        echo "Setting zsh as default shell..."
-        chsh -s "$zsh_path"
-        echo "✓ zsh set as default shell"
-    else
-        echo "  zsh is installed at $zsh_path but is not listed in /etc/shells"
-        echo "  Run: sudo sh -c 'echo $zsh_path >> /etc/shells'"
-        echo "  Then re-run the installer to set it as your default shell."
+        echo "Setting Fish as default shell..."
+        if sudo dscl . -create "/Users/$USER" UserShell "$fish_path"; then
+            echo "✓ Fish set as default shell"
+        else
+            echo "  Could not set Fish as the default shell"
+            echo "  Run: chsh -s '$fish_path'"
+        fi
     fi
 }
 
 config_shell() {
-    echo "Setting up zsh config..."
-    ensure_symlink "$DOTFILES_DIR/zsh/.zshrc" "$HOME/.zshrc" "zshrc"
+    echo "Setting up Fish config..."
+    local fish_dir="$HOME/.config/fish"
+    mkdir -p "$fish_dir/functions" "$fish_dir/conf.d"
 
-    if [[ -d "$HOME/.oh-my-zsh" ]]; then
-        mkdir -p "$HOME/.oh-my-zsh/custom/themes"
-        ensure_symlink \
-            "$DOTFILES_DIR/zsh/themes/lite-samurai.zsh-theme" \
-            "$HOME/.oh-my-zsh/custom/themes/lite-samurai.zsh-theme" \
-            "Oh My Zsh theme: lite-samurai"
+    ensure_symlink "$DOTFILES_DIR/fish/config.fish" "$fish_dir/config.fish" "fish config"
+
+    local fn
+    for fn in "$DOTFILES_DIR"/fish/functions/*.fish; do
+        ensure_symlink "$fn" "$fish_dir/functions/$(basename "$fn")" "fish function $(basename "$fn" .fish)"
+    done
+
+    # Secrets and machine-specific aliases (git-ignored; copy it over manually)
+    if [[ -f "$DOTFILES_DIR/fish/config.local.fish" ]]; then
+        ensure_symlink "$DOTFILES_DIR/fish/config.local.fish" "$fish_dir/conf.d/local.fish" "fish local config"
+    else
+        echo "  No fish/config.local.fish found; copy it from your other machine for secrets and server aliases"
+    fi
+
+    # The lite-samurai prompt replaces pure; remove it if a previous fisher setup installed it
+    if command -v fish &> /dev/null && fish -c 'functions -q fisher; and contains pure-fish/pure $_fisher_plugins' 2>/dev/null; then
+        fish -c 'fisher remove pure-fish/pure' >/dev/null 2>&1 || true
+        echo "✓ Removed pure prompt plugin"
     fi
 }
 
@@ -935,7 +949,7 @@ MODULE_NAMES=(
 )
 
 MODULE_DESCRIPTIONS=(
-    "Oh My Zsh + .zshrc"
+    "Fish default shell + config (lite-samurai prompt)"
     "neovim + config"
     "vim + config (merged keybindings)"
     "tmux + config"
@@ -1045,7 +1059,7 @@ gum_menu() {
 
     echo ""
     echo "Next steps:"
-    echo "  1. Run 'source ~/.zshrc'"
+    echo "  1. Run 'exec fish'"
     if [[ "$has_gcloud" -eq 1 ]]; then
         echo "  2. If credentials were not copied, run 'gcloud auth login'"
         echo "  3. Then run 'gws auth setup' and 'gws auth login'"
@@ -1156,7 +1170,7 @@ fallback_menu() {
 
                 echo ""
                 echo "Next steps:"
-                echo "  1. Run 'source ~/.zshrc'"
+                echo "  1. Run 'exec fish'"
                 if [[ "${selected[12]}" -eq 1 ]]; then
                     echo "  2. If credentials were not copied, run 'gcloud auth login'"
                     echo "  3. Then run 'gws auth setup' and 'gws auth login'"
@@ -1209,7 +1223,7 @@ if [[ "$1" == "--default" ]]; then
 
     echo ""
     echo "Next steps:"
-    echo "  1. Run 'source ~/.zshrc'"
+    echo "  1. Run 'exec fish'"
     echo "  2. If credentials were not copied, run 'gcloud auth login'"
     echo "  3. Then run 'gws auth setup' and 'gws auth login'"
     echo ""
@@ -1229,7 +1243,7 @@ elif [[ "$1" == "--all" ]]; then
 
     echo ""
     echo "Next steps:"
-    echo "  1. Run 'source ~/.zshrc'"
+    echo "  1. Run 'exec fish'"
     echo "  2. If credentials were not copied, run 'gcloud auth login'"
     echo "  3. Then run 'gws auth setup' and 'gws auth login'"
     echo ""
