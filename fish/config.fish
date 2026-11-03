@@ -37,6 +37,7 @@ if type -q jenv; and not set -q JENV_LOADED
 end
 
 # Prompt: pure (pure-fish/pure via fisher, see fish/fish_plugins)
+set -g fish_greeting
 
 if status is-interactive
     abbr -a lspci system_profiler SPUSBDataType
